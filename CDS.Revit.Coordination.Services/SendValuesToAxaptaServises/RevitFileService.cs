@@ -8,5 +8,17 @@ namespace CDS.Revit.Coordination.Services
 {
     public class RevitFileService
     {
+        public void OpenRVTFile(string filePath)
+        {
+
+        }
+        public void SaveRVTFile(string filePath)
+        {
+
+        }
+        public void ExportToNWC(string filePath)
+        {
+
+        }
     }
 }

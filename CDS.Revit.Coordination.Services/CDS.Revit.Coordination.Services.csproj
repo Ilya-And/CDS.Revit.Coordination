@@ -49,10 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AxaptaService.cs" />
-    <Compile Include="RevitFileService.cs" />
-    <Compile Include="RevitModelSchedulService.cs" />
-    <Compile Include="RevitModelElementService.cs" />
+    <Compile Include="SendValuesToAxaptaServises\AxaptaService.cs" />
+    <Compile Include="SendValuesToAxaptaServises\RevitFileService.cs" />
+    <Compile Include="SendValuesToAxaptaServises\RevitModelSchedulService.cs" />
+    <Compile Include="SendValuesToAxaptaServises\RevitModelElementService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
