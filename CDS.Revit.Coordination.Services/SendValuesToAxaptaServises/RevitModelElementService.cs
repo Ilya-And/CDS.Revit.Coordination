@@ -9,9 +9,10 @@ namespace CDS.Revit.Coordination.Services
 {
     public class RevitModelElementService
     {
-        RevitModelElementService()
+        private Document _doc;
+        public RevitModelElementService(Document doc)
         {
-
+            _doc = doc;
         }
 
         //Метод заполнения параметра элемента
@@ -31,21 +32,132 @@ namespace CDS.Revit.Coordination.Services
         //Метод восстановления формы
         public void RestorateForm(Element element)
         {
+            Floor asFloor = element as Floor;
+            FootPrintRoof asFootPrintRoof = element as FootPrintRoof;
+            ExtrusionRoof asExtrusionRoof = element as ExtrusionRoof;
 
+            if (asFloor != null)
+            {
+                try
+                {
+                    if (asFloor.SlabShapeEditor.IsEnabled == true)
+                    {
+                        asFloor.SlabShapeEditor.ResetSlabShape();
+                    }
+                }
+                catch
+                {
+                    
+                }
+
+            }
+
+            if (asFootPrintRoof != null)
+            {
+                try
+                {
+                    if (asFootPrintRoof.SlabShapeEditor.IsEnabled == true)
+                    {
+                        asFootPrintRoof.SlabShapeEditor.ResetSlabShape();
+                    }
+                }
+                catch
+                {
+                    
+                }
+            }
+
+            if (asExtrusionRoof != null)
+            {
+                try
+                {
+                    if (asExtrusionRoof.SlabShapeEditor.IsEnabled == true)
+                    {
+                        asExtrusionRoof.SlabShapeEditor.ResetSlabShape();
+                    }
+                }
+                catch
+                {
+                    
+                }
+            }
         }
         public void RestorateForm(List<Element> elements)
         {
-            
+            foreach (Element element in elements)
+            {
+                Floor asFloor = element as Floor;
+                FootPrintRoof asFootPrintRoof = element as FootPrintRoof;
+                ExtrusionRoof asExtrusionRoof = element as ExtrusionRoof;
+
+                if (asFloor != null)
+                {
+                    try
+                    {
+                        if (asFloor.SlabShapeEditor.IsEnabled == true)
+                        {
+                            asFloor.SlabShapeEditor.ResetSlabShape();
+                        }
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
+                }
+
+                if (asFootPrintRoof != null)
+                {
+                    try
+                    {
+                        if (asFootPrintRoof.SlabShapeEditor.IsEnabled == true)
+                        {
+                            asFootPrintRoof.SlabShapeEditor.ResetSlabShape();
+                        }
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
+
+                if (asExtrusionRoof != null)
+                {
+                    try
+                    {
+                        if (asExtrusionRoof.SlabShapeEditor.IsEnabled == true)
+                        {
+                            asExtrusionRoof.SlabShapeEditor.ResetSlabShape();
+                        }
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
+            }
         }
 
         //Метод создания частей
         public void CreateParts(ElementId elementId)
         {
-
+            var listWithElementId = new List<ElementId>() { elementId };
+            PartUtils.CreateParts(_doc, listWithElementId);
         }
         public void CreateParts(List<ElementId> elementIds)
         {
-
+            foreach (ElementId elementId in elementIds)
+            {
+                var listWithElementId = new List<ElementId>() { elementId };
+                try
+                {
+                    PartUtils.CreateParts(_doc, listWithElementId);
+                }
+                catch
+                {
+                    continue;
+                }
+            }
         }
     }
 }
