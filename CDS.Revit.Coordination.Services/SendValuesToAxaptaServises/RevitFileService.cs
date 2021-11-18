@@ -62,7 +62,15 @@ namespace CDS.Revit.Coordination.Services
             // Создаем настройки экспорта в Navisworks. Экспортируем документ в формат NWC.
 
             NavisworksExportOptions navisworksExportOptions = new NavisworksExportOptions();
-            navisworksExportOptions.SetSelectedElementIds(allElementIdsForExport);
+
+            navisworksExportOptions.ConvertElementProperties = true;
+            navisworksExportOptions.ExportLinks = true;
+            navisworksExportOptions.ExportRoomAsAttribute = false;
+            navisworksExportOptions.ExportRoomGeometry = false;
+            navisworksExportOptions.ExportScope = NavisworksExportScope.View;
+            navisworksExportOptions.Parameters = NavisworksParameters.All;
+            navisworksExportOptions.ViewId = view3DForExport?.Id;
+            
             doc.Export(filePath, doc.PathName, navisworksExportOptions);
         }
     }
