@@ -51,7 +51,7 @@
   <ItemGroup>
     <Compile Include="SendValuesToAxaptaServises\AxaptaService.cs" />
     <Compile Include="SendValuesToAxaptaServises\RevitFileService.cs" />
-    <Compile Include="SendValuesToAxaptaServises\RevitModelSchedulService.cs" />
+    <Compile Include="SendValuesToAxaptaServises\RevitModelScheduleService.cs" />
     <Compile Include="SendValuesToAxaptaServises\RevitModelElementService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

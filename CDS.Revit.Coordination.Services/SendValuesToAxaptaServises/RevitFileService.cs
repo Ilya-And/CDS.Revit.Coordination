@@ -64,14 +64,14 @@ namespace CDS.Revit.Coordination.Services
             NavisworksExportOptions navisworksExportOptions = new NavisworksExportOptions();
 
             navisworksExportOptions.ConvertElementProperties = true;
-            navisworksExportOptions.ExportLinks = true;
+            navisworksExportOptions.ExportLinks = false;
             navisworksExportOptions.ExportRoomAsAttribute = false;
             navisworksExportOptions.ExportRoomGeometry = false;
             navisworksExportOptions.ExportScope = NavisworksExportScope.View;
             navisworksExportOptions.Parameters = NavisworksParameters.All;
             navisworksExportOptions.ViewId = view3DForExport?.Id;
             
-            doc.Export(filePath, doc.PathName, navisworksExportOptions);
+            doc.Export(filePath, doc.Title.ToString(), navisworksExportOptions);
         }
     }
 }
