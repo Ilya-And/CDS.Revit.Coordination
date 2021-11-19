@@ -15,16 +15,24 @@ namespace CDS.Revit.Coordination.Services
             string invalidReStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
             return System.Text.RegularExpressions.Regex.Replace(name, invalidReStr, "_");
         }
+
+        //Метод экспорта спецификации в формат CSV
         public void ExportToCSV(ViewSchedule viewSchedule, string filePath)
         {
             string viewName = MakeValidFileName(viewSchedule.Name);
-            ViewScheduleExportOptions opt = new ViewScheduleExportOptions();
+            ViewScheduleExportOptions exportOptions = new ViewScheduleExportOptions();
             if (!viewSchedule.Name.Contains("<"))
             {
-                viewSchedule.Export(filePath, viewName + ".csv", opt);
+                viewSchedule.Export(filePath, viewName + ".csv", exportOptions);
             }
         }
-        public Dictionary<string, List<string>> ToDictionary()
+        public Dictionary<string, List<string>> ToDictionary(ViewSchedule viewSchedule)
+        {
+            Dictionary<string, List<string>> dictionaryFromSchedule = new Dictionary<string, List<string>>();
+
+            return dictionaryFromSchedule;
+        }
+        public Dictionary<string, List<string>> ToDictionary(string filePath)
         {
             Dictionary<string, List<string>> dictionaryFromSchedule = new Dictionary<string, List<string>>();
 
