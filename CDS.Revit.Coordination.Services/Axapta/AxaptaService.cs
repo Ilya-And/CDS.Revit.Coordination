@@ -129,6 +129,7 @@ namespace CDS.Revit.Coordination.Services
 
             return resultDictionary;
         }
+
         public ObservableCollection<AxaptaWorkset> GetAllAxaptaWorksetsMethod()
         {
             var result = new ObservableCollection<AxaptaWorkset>();
@@ -176,8 +177,6 @@ namespace CDS.Revit.Coordination.Services
                 //result = JsonConvert.DeserializeObject<ObservableCollection<AxaptaWorkset>>(responseString);
                 //result = GetAxaptaWorksetByGroups(result);
             }
-            
-            
             return result;
         }
         public string SendToAxapta<T>(List<T> worksToSend)

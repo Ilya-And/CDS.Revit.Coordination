@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CDS.Revit.Coordination.Services
 {
-    //[Serializable]
+    [Serializable]
     public class AxaptaWorkset
     {
         public bool Archive { get; set; }
@@ -13,7 +13,7 @@ namespace CDS.Revit.Coordination.Services
         public string ProjWorkCodeId { get; set; }
         public string UnitId { get; set; }
         public AxaptaWorkset() { }
-        //[NotMapped]
-        //public ObservableCollection<AxaptaWorkset> AxaptaWorksets { get; set; }
+        [NotMapped]
+        public ObservableCollection<AxaptaWorkset> AxaptaWorksets { get; set; }
     }
 }

@@ -159,5 +159,16 @@ namespace CDS.Revit.Coordination.Services
                 }
             }
         }
+
+        public void SetPartsParametersByHost(ICollection<Part> parts)
+        {
+            foreach (Part part in parts)
+            {
+                var hostId = part.GetSourceElementIds().ToList()[0].HostElementId;
+                var hostElement = _doc.GetElement(hostId);
+
+
+            }
+        }
     }
 }

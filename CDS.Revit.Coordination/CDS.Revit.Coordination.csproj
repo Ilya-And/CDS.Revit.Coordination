@@ -62,12 +62,5 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CDS.Revit.Coordination.SendValuesToAxapta\CDS.Revit.Coordination.SendValuesToAxapta.csproj">
-      <Project>{e391702e-ade7-49ff-9e41-326cbc31c6a3}</Project>
-      <Name>CDS.Revit.Coordination.SendValuesToAxapta</Name>
-      <Private>False</Private>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
