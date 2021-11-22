@@ -32,6 +32,14 @@ namespace CDS.Revit.Coordination.SendValuesToAxapta
             var classifiers = axaptaService.GetAllClassifiersSections();
 
             var elementClassifier = axaptaService.GetAllElementClassifiersDict(classifiers);
+            try
+            {
+                var worksFromAxapta = axaptaService.GetAllAxaptaWorksetsMethod();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error");
+            }
 
         }
     }

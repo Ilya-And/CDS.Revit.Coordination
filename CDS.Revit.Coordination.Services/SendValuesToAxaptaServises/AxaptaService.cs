@@ -13,9 +13,9 @@ namespace CDS.Revit.Coordination.Services
 {
     public class AxaptaService
     {
-        public string HOST { get; set; } = "https://tstaxapi.cds.spb.ru/";
-        public string LOGIN { get; set; } = "nevis";
-        public string PASSWORD { get; set; } = "HPJoP/Y/33NPdTeITGd0WQ==";
+        public static string HOST { get; set; } = "https://tstaxapi.cds.spb.ru/";
+        public static string LOGIN { get; set; } = "nevis";
+        public static string PASSWORD { get; set; } = "HPJoP/Y/33NPdTeITGd0WQ==";
 
         public AxaptaService(string host, string login, string password)
         {
@@ -36,7 +36,7 @@ namespace CDS.Revit.Coordination.Services
         private ObservableCollection<ElementClassifier> GetElementClassifiers(string category)
         {
             ObservableCollection<ElementClassifier> result = new ObservableCollection<ElementClassifier>();
-            //get data foa access to axapta request
+            //get data for access to axapta request
             try
             {
                 using (var client = new WebClient())
@@ -129,7 +129,57 @@ namespace CDS.Revit.Coordination.Services
 
             return resultDictionary;
         }
+        public ObservableCollection<AxaptaWorkset> GetAllAxaptaWorksetsMethod()
+        {
+            var result = new ObservableCollection<AxaptaWorkset>();
+            //get data foa access to axapta request
+            
+            using (var client = new WebClient())
+            {
+                AccessAX accessAX = GetAccessAX();
+                if (accessAX != null)
+                {
+                    //get json
+                    string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
 
+                    var baseAddress = HOST + "api/Navis/ProjWorkTable";
+
+                    var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
+                    http.Headers.Add(authorization);
+                    http.Method = "GET";
+                    result = GetContentFromWebRequest<ObservableCollection<AxaptaWorkset>>(http);
+                }
+                //var values = new NameValueCollection();
+                //values["grant_type"] = "password";
+                //values["username"] = LOGIN;
+                //values["password"] = PASSWORD;
+
+                //var response = client.UploadValues(HOST + "api/Account/token", values);
+
+                //string responseString = Encoding.Default.GetString(response);
+
+                //AccessAX accessAX = JsonConvert.DeserializeObject<AccessAX>(responseString);
+
+                //get json
+                //string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
+
+                //HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(HOST + "api/Navis/ProjWorkTable");
+
+                //req.Headers.Add(authorization);
+
+                //HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+
+                //using (StreamReader stream = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
+                //{
+                //    responseString = stream.ReadToEnd();
+                //}
+                //result = JsonConvert.DeserializeObject<ObservableCollection<AxaptaWorkset>>(responseString);
+                //result = GetAxaptaWorksetByGroups(result);
+            }
+            
+            
+            return result;
+        }
         public string SendToAxapta<T>(List<T> worksToSend)
         {
             string jsonStr = JsonConvert.SerializeObject(worksToSend);

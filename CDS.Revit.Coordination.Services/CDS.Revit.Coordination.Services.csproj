@@ -43,6 +43,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -57,6 +58,7 @@
   <ItemGroup>
     <Compile Include="SendValuesToAxaptaServises\AxaptaService.cs" />
     <Compile Include="SendValuesToAxaptaServises\Models\AccessAX.cs" />
+    <Compile Include="SendValuesToAxaptaServises\Models\AxaptaWorkset.cs" />
     <Compile Include="SendValuesToAxaptaServises\Models\ElementClassifier.cs" />
     <Compile Include="SendValuesToAxaptaServises\Models\SectionClassifier.cs" />
     <Compile Include="SendValuesToAxaptaServises\RevitFileService.cs" />
