@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CDS.Revit.Coordination.Services
+namespace CDS.Revit.Coordination.Services.Axapta
 {
     [Serializable]
     public class AxaptaWorkset

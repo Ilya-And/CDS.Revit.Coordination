@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CDS.Revit.Coordination.Services
+namespace CDS.Revit.Coordination.Services.Revit
 {
     public class RevitModelScheduleService
     {

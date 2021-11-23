@@ -62,9 +62,9 @@
     <Compile Include="Axapta\Models\AxaptaWorkset.cs" />
     <Compile Include="Axapta\Models\ElementClassifier.cs" />
     <Compile Include="Axapta\Models\SectionClassifier.cs" />
-    <Compile Include="Axapta\RevitFileService.cs" />
-    <Compile Include="Axapta\RevitModelScheduleService.cs" />
-    <Compile Include="Axapta\RevitModelElementService.cs" />
+    <Compile Include="Revit\RevitFileService.cs" />
+    <Compile Include="Revit\RevitModelScheduleService.cs" />
+    <Compile Include="Revit\RevitModelElementService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

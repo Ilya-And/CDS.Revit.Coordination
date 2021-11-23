@@ -12,7 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using CDS.Revit.Coordination.Services;
+using CDS.Revit.Coordination.Services.Axapta;
+using CDS.Revit.Coordination.Services.Revit;
 
 namespace CDS.Revit.Coordination.Axapta
 {
@@ -29,6 +30,8 @@ namespace CDS.Revit.Coordination.Axapta
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
             AxaptaService axaptaService = new AxaptaService("https://tstaxapi.cds.spb.ru/", "nevis", "HPJoP/Y/33NPdTeITGd0WQ==");
+
+            var result = axaptaService.GetWorksFromAxapta();
             //var classifiers = axaptaService.GetAllClassifiersSections();
 
             //var elementClassifier = axaptaService.GetAllElementClassifiersDict(classifiers);
