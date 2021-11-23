@@ -15,7 +15,8 @@ namespace CDS.Revit.Coordination.Services.Revit
             _doc = doc;
         }
 
-        //Метод заполнения параметра элемента
+        /*Метод заполнения параметра элемента
+         */
         public void SetParameter(Element element, string parameterName, string parameterValue)
         {
             element.LookupParameter(parameterName).Set(parameterValue);
@@ -29,7 +30,10 @@ namespace CDS.Revit.Coordination.Services.Revit
             element.LookupParameter(parameterName).Set(parameterValue);
         }
 
-        //Метод восстановления формы
+        /*Метод восстановления формы у элементов:
+        Перекрытия
+        Крыша по контуру
+        Крыша выдавливанием*/
         public void RestorateForm(Element element)
         {
             Floor asFloor = element as Floor;
@@ -138,7 +142,8 @@ namespace CDS.Revit.Coordination.Services.Revit
             }
         }
 
-        //Метод создания частей
+        /*Метод создания частей из элементов:
+         */
         public void CreateParts(ElementId elementId)
         {
             var listWithElementId = new List<ElementId>() { elementId };
@@ -164,11 +169,142 @@ namespace CDS.Revit.Coordination.Services.Revit
         {
             foreach (Part part in parts)
             {
-                var hostId = part.GetSourceElementIds().ToList()[0].HostElementId;
-                var hostElement = _doc.GetElement(hostId);
+                if (part != null)
+                {
+                    var hostId = part.GetSourceElementIds().ToList()[0].HostElementId;
+                    var hostElement = _doc.GetElement(hostId);
+                    if(hostElement != null)
+                    {
+
+                    }
+                }
 
 
             }
+        }
+
+        /*Метод получения неправильно названных уровней в проекте
+         */
+        public string GetUnCorrectLevelsNames()
+        {
+            // Получаем список всех уровней в документе
+
+            var allLevelsInDocument = new FilteredElementCollector(_doc).OfCategory(BuiltInCategory.OST_Levels).WhereElementIsNotElementType().ToElements();
+            string unCorrectLevelsNames = "";
+
+            // Итерируемся по списку
+
+            foreach (Element levelAsElement in allLevelsInDocument)
+            {
+                Level level = levelAsElement as Level;
+                
+                // Проверяем корректность имени уровня
+
+                string levelName = level.Name;
+                var splitedLevelName = levelName.Split(' ');
+                bool isCorrect = false;
+
+                if (splitedLevelName.Length == 2)
+                {
+                    if (splitedLevelName[0].ToLower() == "этаж")
+                    {
+                        isCorrect = true;
+                    }
+                }
+                else if (splitedLevelName.Length == 1)
+                {
+                    if (levelName.ToLower() == "подвал"
+                        || levelName.ToLower() == "кровля"
+                        || levelName.ToLower() == "паркинг"
+                        || levelName.ToLower() == "тех.этаж")
+                    {
+                        isCorrect = true;
+                    }
+
+
+                }
+                if (isCorrect == false)
+                {
+
+                    unCorrectLevelsNames = unCorrectLevelsNames + "\n" + levelName;
+
+                }
+
+            }
+            return unCorrectLevelsNames;
+        }
+
+        /*Метод получения номера/имени этажа для заполнения параметра ADSK_Этаж
+         */
+        public string GetLevelNumber(Element element, ElementId levelId, Parameter levelParam)
+        {
+            //Получаем имя уровня
+
+            Level level = _doc.GetElement(levelId) as Level;
+            string levelName = level.Name;
+            var levelNumberList = levelName.Split(' ');
+            var levelNumber = levelName;
+
+            // Получаем порядковый номер или наименование этажа
+
+            if (levelNumberList.Length == 2 && levelNumberList[0].ToLower() == "этаж")
+            {
+                if (levelNumberList[1].StartsWith("0"))
+                {
+                    levelNumber = levelNumberList[1].Substring(1);
+                }
+                else if (levelNumberList[1].Contains(',') || levelNumberList[1].Contains('.'))
+                {
+                    levelNumber = levelNumberList[1].Substring(0, 1);
+                }
+                else
+                {
+                    levelNumber = levelNumberList[1];
+                }
+            }
+            else if (levelNumberList.Length == 1)
+            {
+                switch (levelName.ToLower())
+                {
+                    case "подвал":
+                        levelNumber = "Подвал";
+                        break;
+                    case "кровля":
+                        levelNumber = "Кровля";
+                        break;
+                    case "паркинг":
+                        levelNumber = "Паркинг";
+                        break;
+                    case "тех.этаж":
+                        levelNumber = "Тех.этаж";
+                        break;
+                }
+            }
+
+            return levelNumber;
+        }
+
+        /*Метод получения 3D вида для экспорта модели в формат .nwc
+         */
+        public View3D Get3DViewForExportToNWC()
+        {
+            var allViews = new FilteredElementCollector(_doc).OfClass(typeof(View3D)).WhereElementIsNotElementType().ToElements();
+            View3D view3DForExport = null;
+            foreach(Element elementView in allViews)
+            {
+                View3D view3D = elementView as View3D;
+                string groupParameterValue = view3D.LookupParameter("ADSK_Подгруппа").AsString();
+                string viewName = view3D.Name;
+                if(viewName.Contains("Axapta") && viewName.Contains("Navisworks"))
+                {
+                    if (groupParameterValue.Contains("Axapta"))
+                    {
+                        view3DForExport = view3D;
+                        break;
+                    }
+                }
+            }
+            return view3DForExport;
         }
     }
 }
