@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Axapta\AxaptaService.cs" />
     <Compile Include="Axapta\Models\AccessAX.cs" />
+    <Compile Include="Axapta\Models\WorksetToSend.cs" />
     <Compile Include="Axapta\Models\AxaptaWorkset.cs" />
     <Compile Include="Axapta\Models\ElementClassifier.cs" />
     <Compile Include="Axapta\Models\SectionClassifier.cs" />

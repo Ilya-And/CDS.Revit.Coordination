@@ -84,7 +84,7 @@ namespace CDS.Revit.Coordination.Services
 
             return result;
         }
-        public List<SectionClassifier> GetAllClassifiersSections()
+        private List<SectionClassifier> GetAllClassifiersSections()
         {
             List<SectionClassifier> result = new List<SectionClassifier>();
             //get data foa access to axapta request
@@ -122,10 +122,32 @@ namespace CDS.Revit.Coordination.Services
             return classifierDict;
 
         }
-        public Dictionary<string, string> GetWorksFromAxapta()
+        public Dictionary<string, List<AxaptaWorkset>> GetWorksFromAxapta()
         {
-            Dictionary<string, string> resultDictionary = new Dictionary<string, string>();
+            Dictionary<string, List<AxaptaWorkset>> resultDictionary = new Dictionary<string, List<AxaptaWorkset>>();
+            var sectionsFromAxapta = GetAllClassifiersSections();
+            var dictionaryElementClassifiers = GetAllElementClassifiersDict(sectionsFromAxapta);
+            var allAxaptaWorksets = GetAllAxaptaWorksetsMethod();
 
+            foreach(string section in dictionaryElementClassifiers.Keys)
+            {
+                foreach(ElementClassifier elementClassifier in dictionaryElementClassifiers[section])
+                {
+                    string classifire = elementClassifier.id;
+                    var worksFromElementClassifier = elementClassifier.WorkCodeID;
+                    foreach(string work in worksFromElementClassifier)
+                    {
+                        var axaptaWorkset = (from w in allAxaptaWorksets
+                                             where w.ProjWorkCodeId == work
+                                             select w).FirstOrDefault();
+                        if(classifire != null && axaptaWorkset != null)
+                        {
+
+                        }
+                    }
+                }
+
+            }
 
             return resultDictionary;
         }

@@ -29,17 +29,17 @@ namespace CDS.Revit.Coordination.Axapta
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
             AxaptaService axaptaService = new AxaptaService("https://tstaxapi.cds.spb.ru/", "nevis", "HPJoP/Y/33NPdTeITGd0WQ==");
-            var classifiers = axaptaService.GetAllClassifiersSections();
+            //var classifiers = axaptaService.GetAllClassifiersSections();
 
-            var elementClassifier = axaptaService.GetAllElementClassifiersDict(classifiers);
-            try
-            {
-                var worksFromAxapta = axaptaService.GetAllAxaptaWorksetsMethod();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error");
-            }
+            //var elementClassifier = axaptaService.GetAllElementClassifiersDict(classifiers);
+            //try
+            //{
+            //    var worksFromAxapta = axaptaService.GetAllAxaptaWorksetsMethod();
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Error");
+            //}
 
         }
     }
