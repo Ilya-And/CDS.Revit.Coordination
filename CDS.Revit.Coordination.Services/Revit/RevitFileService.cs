@@ -16,6 +16,9 @@ namespace CDS.Revit.Coordination.Services.Revit
         {
             _applicationDoc = application;
         }
+
+        /*Метод открытия файла формата .rvt по указанному пути
+         Открытие файла с отсоединением*/
         public Document OpenRVTFile(string filePath)
         {
             // Переводим путь к файлу из string в ModelPath.
@@ -31,6 +34,9 @@ namespace CDS.Revit.Coordination.Services.Revit
 
             return doc;
         }
+
+        /*Метод сохранения файла в формате .rvt
+         Без сохранения рабочих наборов*/
         public void SaveRVTFile(string filePath, Document doc)
         {
             // Переводим путь к файлу из string в ModelPath.
@@ -47,6 +53,34 @@ namespace CDS.Revit.Coordination.Services.Revit
 
             doc.SaveAs(modelPath, saveAsOptions);
         }
+
+        /*Метод сохранения и закрытия файла в формате .rvt
+          Без сохранения рабочих наборов
+          После сохранения - закрытие файла*/
+        public void SaveAndCloseRVTFile(string filePath, Document doc)
+        {
+            // Переводим путь к файлу из string в ModelPath.
+
+            ModelPath modelPath = ModelPathUtils.ConvertUserVisiblePathToModelPath(filePath);
+
+            // Создаем настройки сохранения файла. Сохраняем файл без сохранения рабочих наборов.
+
+            WorksharingSaveAsOptions worksharingSaveAsOptions = new WorksharingSaveAsOptions();
+            worksharingSaveAsOptions.SaveAsCentral = false;
+
+            SaveAsOptions saveAsOptions = new SaveAsOptions();
+            saveAsOptions.SetWorksharingOptions(worksharingSaveAsOptions);
+
+            doc.SaveAs(modelPath, saveAsOptions);
+
+            // Закрываем файл
+
+            doc.Close(true);
+        }
+
+        /*Метод экспорта 3D вида в модели в формат .nwc
+          Выбор вида - по имени и группированию
+          Настройки экспорта согласно стандарту ЦДС*/
         public void ExportToNWC(string filePath, Document doc)
         {
             // Получаем 3D вид, который будем экспортировать в NWC.
