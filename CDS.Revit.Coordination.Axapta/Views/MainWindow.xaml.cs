@@ -37,7 +37,7 @@ namespace CDS.Revit.Coordination.Axapta
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.ShowDialog();
-            excelService.GetValuesFromExcelTable(openFileDialog.FileName);
+            var result = excelService.GetValuesFromExcelTable(openFileDialog.FileName);
             //var result = axaptaService.GetWorksFromAxapta();
             //var classifiers = axaptaService.GetAllClassifiersSections();
 
