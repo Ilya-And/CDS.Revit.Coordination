@@ -68,14 +68,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Models\" />
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\CDS.Revit.Coordination.Services\CDS.Revit.Coordination.Services.csproj">
       <Project>{8bdebdd1-0bf3-4851-95d7-779288b09d9a}</Project>
       <Name>CDS.Revit.Coordination.Services</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="ViewModels\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

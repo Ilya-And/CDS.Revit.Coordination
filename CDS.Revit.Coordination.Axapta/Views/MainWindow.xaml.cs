@@ -14,6 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CDS.Revit.Coordination.Services.Axapta;
 using CDS.Revit.Coordination.Services.Revit;
+using CDS.Revit.Coordination.Services.Excel;
+using Microsoft.Win32;
 
 namespace CDS.Revit.Coordination.Axapta
 {
@@ -31,7 +33,12 @@ namespace CDS.Revit.Coordination.Axapta
         {
             AxaptaService axaptaService = new AxaptaService("https://tstaxapi.cds.spb.ru/", "nevis", "HPJoP/Y/33NPdTeITGd0WQ==");
 
-            var result = axaptaService.GetWorksFromAxapta();
+            ExcelService excelService = new ExcelService();
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.ShowDialog();
+            excelService.GetValuesFromExcelTable(openFileDialog.FileName);
+            //var result = axaptaService.GetWorksFromAxapta();
             //var classifiers = axaptaService.GetAllClassifiersSections();
 
             //var elementClassifier = axaptaService.GetAllElementClassifiersDict(classifiers);

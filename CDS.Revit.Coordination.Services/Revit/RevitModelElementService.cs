@@ -10,6 +10,11 @@ namespace CDS.Revit.Coordination.Services.Revit
     public class RevitModelElementService
     {
         private Document _doc;
+        public string SectionParameter = "ADSK_Номер секции";
+        public string LevelParameter = "ADSK_Этаж";
+        public string ClassifierParameter = "ЦДС_Классификатор";
+        public string ClassMaterialParameter = "ЦДС_Классификатор_Материалов";
+
         public RevitModelElementService(Document doc)
         {
             _doc = doc;
@@ -173,9 +178,33 @@ namespace CDS.Revit.Coordination.Services.Revit
                 {
                     var hostId = part.GetSourceElementIds().ToList()[0].HostElementId;
                     var hostElement = _doc.GetElement(hostId);
+                    string sectionNumber = "";
+                    string levelNumber = "";
+                    string classifire = "";
+                    string classMaterial = "";
+
                     if(hostElement != null)
                     {
+                        var asFamilyInstance = hostElement as FamilyInstance;
+                        var asWall = hostElement as Wall;
+                        var asFloor = hostElement as Floor;
+                        var asWallSweep = hostElement as WallSweep;
+                        var asRoof = hostElement as FootPrintRoof;
+                        var asExtrusionRoof = hostElement as ExtrusionRoof;
+                        var asPanel = hostElement as Panel;
+                        var asCeiling = hostElement as Ceiling;
+                        if(asFamilyInstance != null)
+                        {
+                            sectionNumber = asFamilyInstance.LookupParameter(SectionParameter).AsString();
+                            levelNumber = asFamilyInstance.LookupParameter(LevelParameter).AsString();
+                            classifire = asFamilyInstance.LookupParameter(ClassifierParameter).AsString();
 
+
+                            part.LookupParameter(SectionParameter).Set(sectionNumber);
+                            part.LookupParameter(LevelParameter).Set(levelNumber);
+                            part.LookupParameter(ClassifierParameter).Set(classifire);
+                        }
+                        
                     }
                 }
 
