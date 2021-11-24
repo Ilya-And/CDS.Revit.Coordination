@@ -6,12 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CDS.Revit.Coordination.Services.Axapta;
-using CDS.Revit.Coordination.Services.Excel;
-using CDS.Revit.Coordination.Services.Revit;
+using CDS.Revit.Coordination.Services;
 
-
-namespace CDS.Revit.Coordination.Axapta
+namespace CDS.Revit.Coordination.Test
 {
     [TransactionAttribute(TransactionMode.Manual)]
     [RegenerationAttribute(RegenerationOption.Manual)]

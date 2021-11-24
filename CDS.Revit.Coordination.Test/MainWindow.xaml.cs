@@ -12,15 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-//using CDS.Revit.Coordination.Services.Axapta;
-//using CDS.Revit.Coordination.Services.Revit;
-//using CDS.Revit.Coordination.Services.Excel;
-using CDS.Revit.Coordination.Axapta.Services.Axapta;
-using CDS.Revit.Coordination.Axapta.Services.Excel;
-using CDS.Revit.Coordination.Axapta.Services.Revit;
+using CDS.Revit.Coordination.Services.Axapta;
+using CDS.Revit.Coordination.Services.Revit;
+using CDS.Revit.Coordination.Services.Excel;
 using Microsoft.Win32;
+using Autodesk.Revit.UI;
 
-namespace CDS.Revit.Coordination.Axapta
+namespace CDS.Revit.Coordination.Test
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
@@ -40,9 +38,8 @@ namespace CDS.Revit.Coordination.Axapta
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.ShowDialog();
-            //var result = excelService.GetValuesFromExcelTable(openFileDialog.FileName);
-            //MessageBox.Show(result);
-            //var resultaxapta = axaptaService.GetWorksFromAxapta();
+            var result = excelService.GetValuesFromExcelTable(openFileDialog.FileName);
+            var resultaxapta = axaptaService.GetWorksFromAxapta();
             //var classifiers = axaptaService.GetAllClassifiersSections();
 
             //var elementClassifier = axaptaService.GetAllElementClassifiersDict(classifiers);
