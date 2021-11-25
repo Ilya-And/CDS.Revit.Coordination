@@ -38,9 +38,12 @@ namespace CDS.Revit.Coordination.Axapta
 
             ExcelService excelService = new ExcelService();
 
+            CSVService CSVService = new CSVService();
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.ShowDialog();
-            //var result = excelService.GetValuesFromExcelTable(openFileDialog.FileName);
+
+            var result = CSVService.GetValuesFromCSVTable(openFileDialog.FileName);
             //MessageBox.Show(result);
             //var resultaxapta = axaptaService.GetWorksFromAxapta();
             //var classifiers = axaptaService.GetAllClassifiersSections();

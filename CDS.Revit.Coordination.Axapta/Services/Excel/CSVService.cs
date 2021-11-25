@@ -1,22 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CDS.Revit.Coordination.Axapta.Services.Excel
 {
     public class CSVService
     {
+        /*Метод получения данных из таблицы .csv в формате: Столбец : Список строк столбца
+         */
         public List<ColumnValues> GetValuesFromCSVTable (string filePath)
         {
+            // Инициализируем возвращаемый список
             var result = new List<ColumnValues>();
-            string[] lines = System.IO.File.ReadAllLines(filePath);
+
+            //Открываем файл по указанному пути.
+            string[] lines = System.IO.File.ReadAllLines(filePath, Encoding.Default);
+
+            //Получаем значения первой строки
             var firstLineAsString = lines[0];
             var firstLineAsList = firstLineAsString.Split(',').ToList();
+
+            //Получаем количество столбцов и строк
             var columnCount = firstLineAsList.Count;
             var rowCount = lines.Count();
-            for(int i = 0; i <= columnCount; i++)
+
+            //Заполняем возвращаемый список
+            for(int i = 0; i <= columnCount - 1; i++)
             {
                 var newColumn = new ColumnValues();
                 newColumn.Id = i;

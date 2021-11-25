@@ -1,11 +1,6 @@
 ﻿using ExcelDataReader;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MExcel = Microsoft.Office.Interop.Excel;
 
 namespace CDS.Revit.Coordination.Axapta.Services.Excel
 {
@@ -18,7 +13,7 @@ namespace CDS.Revit.Coordination.Axapta.Services.Excel
             // Инициализируем возвращаемый список
             var resultList = new List<ColumnValues>();
 
-            //Открываем файл по указанному пути.
+            //Открываем файл по указанному пути
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
             {
                 IExcelDataReader reader;

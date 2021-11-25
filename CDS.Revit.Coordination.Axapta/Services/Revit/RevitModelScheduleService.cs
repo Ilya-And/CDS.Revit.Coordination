@@ -16,7 +16,8 @@ namespace CDS.Revit.Coordination.Axapta.Services.Revit
             return System.Text.RegularExpressions.Regex.Replace(name, invalidReStr, "_");
         }
 
-        //Метод экспорта спецификации в формат CSV
+        /*Метод экспорта спецификации в формат .csv
+         */
         public void ExportToCSV(ViewSchedule viewSchedule, string filePath)
         {
             string viewName = MakeValidFileName(viewSchedule.Name);
@@ -25,18 +26,6 @@ namespace CDS.Revit.Coordination.Axapta.Services.Revit
             {
                 viewSchedule.Export(filePath, viewName + ".csv", exportOptions);
             }
-        }
-        public Dictionary<string, List<string>> ToDictionary(ViewSchedule viewSchedule)
-        {
-            Dictionary<string, List<string>> dictionaryFromSchedule = new Dictionary<string, List<string>>();
-
-            return dictionaryFromSchedule;
-        }
-        public Dictionary<string, List<string>> ToDictionary(string filePath)
-        {
-            Dictionary<string, List<string>> dictionaryFromSchedule = new Dictionary<string, List<string>>();
-
-            return dictionaryFromSchedule;
         }
     }
 }
