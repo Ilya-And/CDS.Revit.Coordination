@@ -17,13 +17,13 @@ namespace CDS.Revit.Coordination.Axapta
     [RegenerationAttribute(RegenerationOption.Manual)]
     public class SendValuesCommand : IExternalCommand
     {
-        private Document _doc;
+        public static Document Doc;
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             UIApplication uiapp = uidoc.Application;
             Document doc = commandData.Application.ActiveUIDocument.Document;
-            _doc = doc;
+            Doc = doc;
             var mainWindow = new MainWindow();
             mainWindow.ShowDialog();
             return Result.Succeeded;

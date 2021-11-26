@@ -5,12 +5,148 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CDS.Revit.Coordination.Axapta"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             WindowStartupLocation="CenterScreen"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             MinHeight="400" MinWidth="700"
+             Height="400" Width="700">
     <Grid>
-        <Button x:Name="StartButton"
-                Width="50"
-                Height="30"
-                Content="Start"
-                Click="StartButton_Click"/>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock Margin= "5,5,5,0"
+                       Text="Выберите файл Excel с данными о файлах, из которых необходимо выгрузить объемы:"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="80"/>
+                </Grid.ColumnDefinitions>
+                <Border Height="25"
+                            Margin="5"
+                            BorderThickness="0.6"
+                            BorderBrush="Gray">
+                    <TextBlock x:Name="GeneralFilePath"/>
+                </Border>
+                <Button x:Name="GetGeneralFileButton"
+                        Grid.Column="1"
+                        Margin="5"
+                        BorderThickness="0"
+                        Content="Выбрать..."/>
+            </Grid>
+
+            <TextBlock Margin= "5,5,5,0"
+                       Text="Выберите файлы Excel с классификацией элементов:"/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="80"/>
+                </Grid.ColumnDefinitions>
+                <Border Height="25"
+                            Margin="5"
+                            BorderThickness="0.6"
+                            BorderBrush="Gray">
+                    <TextBlock x:Name="ClassificatorsFilesPath"/>
+                </Border>
+                <Button x:Name="GetClassificatorsFilesButton"
+                        Grid.Column="1"
+                        Margin="5"
+                        BorderThickness="0"
+                        Content="Выбрать..."/>
+            </Grid>
+
+            <TextBlock Margin= "5,5,5,0"
+                       Text="Укажите путь для сохранения файлов:"/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="80"/>
+                </Grid.ColumnDefinitions>
+                <Border Height="25"
+                            Margin="5"
+                            BorderThickness="0.6"
+                            BorderBrush="Gray">
+                    <TextBlock x:Name="ExportFilesPath"/>
+                </Border>
+                <Button x:Name="GetExportFilesPathButton"
+                        Grid.Column="1"
+                        Margin="5"
+                        BorderThickness="0"
+                        Content="Выбрать..."/>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Expander Header="Настройки выгрузки объемов"
+                          Margin="5">
+                    <StackPanel>
+                        <CheckBox x:Name="ExportToExcelCheckBox"
+                                  IsChecked="{Binding IsExportToExcel}"
+                                  Margin="5,10,5,5"
+                                  Content="Выгрузить в Excel."/>
+
+                        <CheckBox x:Name="ExportToJSONCheckBox"
+                                  Margin="5"
+                                  Content="Выгрузить в Json."/>
+
+                        <CheckBox x:Name="ExportToAxaptaCheckBox"
+                                  Margin="5"
+                                  Content="Выгрузить в Axapta."/>
+
+                        <CheckBox x:Name="TestExportToAxaptaCheckBox"
+                                  Margin="5"
+                                  Content="Выполнить тестовую выгрузку в Axapta."/>
+                    </StackPanel>
+                </Expander>
+
+                <Expander Grid.Column="1" 
+                          Margin="5"
+                          Header="Настройки сохранения модели">
+                    <StackPanel>
+                        <CheckBox x:Name="ExportToRVTCheckBox"
+                                  Margin="5,10,5,5"
+                                  Content="Сохранять обрабатываемые модели в RVT."/>
+
+                        <CheckBox x:Name="ExportToNWCCheckBox"
+                                  Margin="5"
+                                  Content="Сохранять обрабатываемые модели в NWC."/>
+                    </StackPanel>
+                </Expander>
+            </Grid>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="80"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="GetInformationButton"
+                        Grid.Column="0"
+                        Margin="5"
+                        BorderThickness="0"
+                        FontSize="11"
+                        Content="Инструкция"/>
+
+            <Button x:Name="StartButton"
+                    Command="{Binding StartCommand}"
+                    Grid.Column="2"
+                    Margin="5"
+                    BorderThickness="0"
+                    Content="Начать"/>
+            <ProgressBar Grid.Column="1"
+                         Name="ProgressBarStatusView" 
+                         Minimum="0" 
+                         Margin="5"
+                         Background="White"
+                         Foreground="#009BE1"
+                         BorderThickness="0"/>
+        </Grid>
     </Grid>
 </Window>

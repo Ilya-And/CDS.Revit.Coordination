@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Autodesk.Revit.DB;
+using Prism;
 //using CDS.Revit.Coordination.Services.Axapta;
 //using CDS.Revit.Coordination.Services.Revit;
 //using CDS.Revit.Coordination.Services.Excel;
@@ -32,32 +34,40 @@ namespace CDS.Revit.Coordination.Axapta
             InitializeComponent();
         }
 
-        private void StartButton_Click(object sender, RoutedEventArgs e)
-        {
-            AxaptaService axaptaService = new AxaptaService("https://tstaxapi.cds.spb.ru/", "nevis", "HPJoP/Y/33NPdTeITGd0WQ==");
+        //private void StartButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    AxaptaService axaptaService = new AxaptaService("https://tstaxapi.cds.spb.ru/", "nevis", "HPJoP/Y/33NPdTeITGd0WQ==");
 
-            ExcelService excelService = new ExcelService();
+        //    ExcelService excelService = new ExcelService();
 
-            CSVService CSVService = new CSVService();
+        //    CSVService CSVService = new CSVService();
 
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.ShowDialog();
+        //    RevitModelElementService revitModelElementService = new RevitModelElementService(SendValuesCommand.Doc);
 
-            var result = CSVService.GetValuesFromCSVTable(openFileDialog.FileName);
-            //MessageBox.Show(result);
-            //var resultaxapta = axaptaService.GetWorksFromAxapta();
-            //var classifiers = axaptaService.GetAllClassifiersSections();
+        //    //OpenFileDialog openFileDialog = new OpenFileDialog();
+        //    //openFileDialog.ShowDialog();
 
-            //var elementClassifier = axaptaService.GetAllElementClassifiersDict(classifiers);
-            //try
-            //{
-            //    var worksFromAxapta = axaptaService.GetAllAxaptaWorksetsMethod();
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Error");
-            //}
+        //    var rebars = new FilteredElementCollector(SendValuesCommand.Doc).OfCategory(BuiltInCategory.OST_Rebar).WhereElementIsNotElementType().ToElements();
+        //    using (Transaction tr = new Transaction(SendValuesCommand.Doc))
+        //    {
+        //        tr.Start("Заполнение классификатора для арматуры");
+        //        revitModelElementService.SetClassifierParameterValueToRebar(rebars);
+        //        tr.Commit();
+        //    }
+        //    //MessageBox.Show(result);
+        //    //var resultaxapta = axaptaService.GetWorksFromAxapta();
+        //    //var classifiers = axaptaService.GetAllClassifiersSections();
 
-        }
+        //    //var elementClassifier = axaptaService.GetAllElementClassifiersDict(classifiers);
+        //    //try
+        //    //{
+        //    //    var worksFromAxapta = axaptaService.GetAllAxaptaWorksetsMethod();
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    MessageBox.Show("Error");
+        //    //}
+
+        //}
     }
 }

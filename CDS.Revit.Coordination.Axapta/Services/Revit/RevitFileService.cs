@@ -97,12 +97,15 @@ namespace CDS.Revit.Coordination.Axapta.Services.Revit
 
             NavisworksExportOptions navisworksExportOptions = new NavisworksExportOptions();
 
+
+            navisworksExportOptions.ExportElementIds = true;
+            navisworksExportOptions.Parameters = NavisworksParameters.All;
+            navisworksExportOptions.Coordinates = NavisworksCoordinates.Shared;
+            navisworksExportOptions.ExportRoomAsAttribute = false;
             navisworksExportOptions.ConvertElementProperties = true;
             navisworksExportOptions.ExportLinks = false;
-            navisworksExportOptions.ExportRoomAsAttribute = false;
             navisworksExportOptions.ExportRoomGeometry = false;
             navisworksExportOptions.ExportScope = NavisworksExportScope.View;
-            navisworksExportOptions.Parameters = NavisworksParameters.All;
             navisworksExportOptions.ViewId = view3DForExport?.Id;
             
             doc.Export(filePath, doc.Title.ToString(), navisworksExportOptions);

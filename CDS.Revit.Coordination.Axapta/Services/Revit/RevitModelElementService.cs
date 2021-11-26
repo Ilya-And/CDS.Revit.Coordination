@@ -676,7 +676,7 @@ namespace CDS.Revit.Coordination.Axapta.Services.Revit
 
         /*Метод заполнния у несущей арматуры параметра ЦДС_Классификатор
          */
-        public void SetClassifierParameterValueToRebar(ICollection<Element> rebarElements, string sectionNumber)
+        public void SetClassifierParameterValueToRebar(ICollection<Element> rebarElements)
         {
             foreach(Element rebarElement in rebarElements)
             {
