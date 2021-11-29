@@ -1,71 +1,75 @@
 ﻿using ExcelDataReader;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MExcel = Microsoft.Office.Interop.Excel;
 
 namespace CDS.Revit.Coordination.Services.Excel
 {
     public class ExcelService
     {
-        public ExcelService()
-        {
-
-        }
+        /*Метод получения данных из таблицы .xlsx в формате: Столбец : Список строк столбца
+         */
         public List<ColumnValues> GetValuesFromExcelTable(string filePath)
         {
+            // Инициализируем возвращаемый список
             var resultList = new List<ColumnValues>();
 
-            //using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
-            //{
-            //    IExcelDataReader reader;
-
-            //    reader = ExcelDataReader.ExcelReaderFactory.CreateReader(stream);
-
-            //    var conf = new ExcelDataSetConfiguration
-            //    {
-            //        ConfigureDataTable = _ => new ExcelDataTableConfiguration
-            //        {
-            //            UseHeaderRow = true
-            //        }
-            //    };
-
-            //    var dataSet = reader.AsDataSet(conf);
-
-            //    var dataTable = dataSet.Tables[0];
-            //}
-
-            MExcel.Application objWorkExcel = new MExcel.Application();
-            MExcel.Workbook workbook = objWorkExcel.Workbooks.Open(filePath, Type.Missing, Type.Missing, Type.EmptyTypes, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-            MExcel.Worksheet worksheet = workbook.Sheets[1];
-            MExcel.Range xlRange = worksheet.UsedRange;
-            var countColumns = worksheet.Cells.Count;
-            var countRows = worksheet.Rows.Count;
-
-            for (int i = 1; i <= countColumns; i++)
+            //Открываем файл по указанному пути
+            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
             {
-                var newColumn = new ColumnValues();
-                newColumn.Id = i;
+                IExcelDataReader reader;
 
-                for (int n = 1; n <= countRows; n++)
+                reader = ExcelReaderFactory.CreateReader(stream);
+
+                var conf = new ExcelDataSetConfiguration
                 {
-                    if (n == 1)
+                    ConfigureDataTable = _ => new ExcelDataTableConfiguration
                     {
-                        newColumn.ColumnName = (worksheet.Cells[n, i] as MExcel.Range).Text;
+                        UseHeaderRow = false
                     }
-                    else
-                    {
-                        var newRow = new RowValue();
-                        newRow.Id = n;
-                        newRow.Value = (worksheet.Cells[n, i] as MExcel.Range).Text;
-                        newColumn.RowValues.Add(newRow);
-                    }
-                }
-            }
+                };
 
+                //Получаем таблицу
+                var dataSet = reader.AsDataSet(conf);
+
+                var dataTable = dataSet.Tables[0];
+
+                //Получаем строки, столбцы и их количество
+                var rows = dataTable.Rows;
+                var columns = dataTable.Columns;
+
+                var countColumns = columns.Count;
+                var countRows = rows.Count;
+
+                //Заполняем возвращаемый список
+                for (int i = 0; i <= countColumns - 1; i++)
+                {
+                    var newColumn = new ColumnValues();
+                    newColumn.Id = i;
+
+                    for (int n = 0; n <= countRows - 1; n++)
+                    {
+                        if (n == 0)
+                        {
+                            newColumn.ColumnName = rows[n][i].ToString();
+                        }
+                        else
+                        {
+                            var newRow = new RowValue();
+                            newRow.Id = n;
+                            try
+                            {
+                                newRow.Value = rows[n][i].ToString();
+                            }
+                            catch
+                            {
+                                newRow.Value = "";
+                            }
+                            newColumn.RowValues.Add(newRow);
+                        }
+                    }
+                    resultList.Add(newColumn);
+                }   
+            }
             return resultList;
         }
     }

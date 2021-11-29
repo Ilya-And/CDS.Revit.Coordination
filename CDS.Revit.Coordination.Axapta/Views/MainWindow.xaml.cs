@@ -13,16 +13,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Autodesk.Revit.DB;
-using Prism;
-//using CDS.Revit.Coordination.Services.Axapta;
-//using CDS.Revit.Coordination.Services.Revit;
-//using CDS.Revit.Coordination.Services.Excel;
 using CDS.Revit.Coordination.Axapta.Services.Axapta;
 using CDS.Revit.Coordination.Axapta.Services.Excel;
 using CDS.Revit.Coordination.Axapta.Services.Revit;
 using Microsoft.Win32;
+using CDS.Revit.Coordination.Axapta.ViewModels;
 
-namespace CDS.Revit.Coordination.Axapta
+namespace CDS.Revit.Coordination.Axapta.Views
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
@@ -32,6 +29,7 @@ namespace CDS.Revit.Coordination.Axapta
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new MainWindowViewModel();
         }
 
         //private void StartButton_Click(object sender, RoutedEventArgs e)

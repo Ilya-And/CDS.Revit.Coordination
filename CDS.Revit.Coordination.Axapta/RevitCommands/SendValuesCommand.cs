@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 using CDS.Revit.Coordination.Services.Axapta;
 using CDS.Revit.Coordination.Services.Excel;
 using CDS.Revit.Coordination.Services.Revit;
-
+using CDS.Revit.Coordination.Axapta.Views;
+using Autodesk.Revit.ApplicationServices;
+using System.Reflection;
+using System.Windows;
 
 namespace CDS.Revit.Coordination.Axapta
 {
@@ -17,13 +20,33 @@ namespace CDS.Revit.Coordination.Axapta
     [RegenerationAttribute(RegenerationOption.Manual)]
     public class SendValuesCommand : IExternalCommand
     {
-        public static Document Doc;
+        public static Autodesk.Revit.ApplicationServices.Application App;
+        public static string AssemblyPath { get; private set; }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIDocument uidoc = commandData.Application.ActiveUIDocument;
-            UIApplication uiapp = uidoc.Application;
-            Document doc = commandData.Application.ActiveUIDocument.Document;
-            Doc = doc;
+            string thisAssemblyPath = Assembly.GetExecutingAssembly().Location;
+            var arrayStr = thisAssemblyPath.Split('\\').ToList();
+            arrayStr.Remove(arrayStr[arrayStr.Count - 1]);
+            string folderPath = string.Join("\\", arrayStr.ToArray());
+            AssemblyPath = folderPath;
+
+            try
+            {
+                Assembly.LoadFrom(folderPath + "\\Newtonsoft.Json.dll");
+                Assembly.LoadFrom(folderPath + "\\UnidecodeSharpFork.dll");
+                Assembly.LoadFrom(folderPath + "\\ExcelDataReader.dll");
+                Assembly.LoadFrom(folderPath + "\\ExcelDataReader.DataSet.dll");
+                Assembly.LoadFrom(folderPath + "\\CDS.Revit.Coordination.Services.dll");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return 0;
+            }
+
+            Autodesk.Revit.ApplicationServices.Application app = commandData.Application.Application;
+            App = app;
+
             var mainWindow = new MainWindow();
             mainWindow.ShowDialog();
             return Result.Succeeded;

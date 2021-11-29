@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+
+	<AddIn Type="Command">
+		<Name>Application CDS.Revit.Coordination.Axapta</Name>
+		<Assembly>CDS.Revit.Coordination.Axapta.dll</Assembly>
+		<FullClassName>CDS.Revit.Coordination.Axapta.SendValuesCommand</FullClassName>
+		<Text>Axapta</Text>
+		<ClientId>ebbc1a9f-740c-4012-afb2-a6f133efbe91</ClientId>
+		<VendorId>BIMCDS</VendorId>
+		<VendorDescription>BIM Team CDS</VendorDescription>
+	</AddIn>
+</RevitAddIns>

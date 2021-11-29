@@ -10,6 +10,6 @@ namespace CDS.Revit.Coordination.Services.Excel
     {
         public int Id { get; set; }
         public string ColumnName { get; set; }
-        public List<RowValue> RowValues { get; set; }
+        public List<RowValue> RowValues { get; set; } = new List<RowValue>();
     }
 }
