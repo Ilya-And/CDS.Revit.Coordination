@@ -188,10 +188,20 @@ namespace CDS.Revit.Coordination.Services.Revit
 
         /*Метод создания частей из элементов:
          */
-        public void CreatePartsFromElement(ElementId elementId)
+        public void CreatePartsFromElement(ICollection<ElementId> elementIds)
         {
-            var listWithElementId = new List<ElementId>() { elementId };
-            PartUtils.CreateParts(_doc, listWithElementId);
+            foreach(ElementId elementId in elementIds)
+            {
+                try
+                {
+                    var listWithElementId = new List<ElementId>() { elementId };
+                    PartUtils.CreateParts(_doc, listWithElementId);
+                }
+                catch
+                {
+                    continue;
+                }
+            }
         }
         public void CreatePartsFromElement(List<ElementId> elementIds)
         {

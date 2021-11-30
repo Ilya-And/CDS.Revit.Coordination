@@ -49,29 +49,17 @@ namespace CDS.Revit.Coordination.Services.Revit
             worksharingSaveAsOptions.SaveAsCentral = false;
 
             SaveAsOptions saveAsOptions = new SaveAsOptions();
-            saveAsOptions.SetWorksharingOptions(worksharingSaveAsOptions);
 
             doc.SaveAs(modelPath, saveAsOptions);
         }
 
         /*Метод сохранения и закрытия файла в формате .rvt
-          Без сохранения рабочих наборов
           После сохранения - закрытие файла*/
         public void SaveAndCloseRVTFile(string filePath, Document doc)
         {
-            // Переводим путь к файлу из string в ModelPath.
+            // Сохраняем файл
 
-            ModelPath modelPath = ModelPathUtils.ConvertUserVisiblePathToModelPath(filePath);
-
-            // Создаем настройки сохранения файла. Сохраняем файл без сохранения рабочих наборов.
-
-            WorksharingSaveAsOptions worksharingSaveAsOptions = new WorksharingSaveAsOptions();
-            worksharingSaveAsOptions.SaveAsCentral = false;
-
-            SaveAsOptions saveAsOptions = new SaveAsOptions();
-            saveAsOptions.SetWorksharingOptions(worksharingSaveAsOptions);
-
-            doc.SaveAs(modelPath, saveAsOptions);
+            doc.SaveAs(filePath + "\\" + doc.PathName);
 
             // Закрываем файл
 
@@ -106,6 +94,7 @@ namespace CDS.Revit.Coordination.Services.Revit
             navisworksExportOptions.ExportLinks = false;
             navisworksExportOptions.ExportRoomGeometry = false;
             navisworksExportOptions.ExportScope = NavisworksExportScope.View;
+            navisworksExportOptions.ExportParts = true;
             navisworksExportOptions.ViewId = view3DForExport?.Id;
             
             doc.Export(filePath, doc.Title.ToString(), navisworksExportOptions);

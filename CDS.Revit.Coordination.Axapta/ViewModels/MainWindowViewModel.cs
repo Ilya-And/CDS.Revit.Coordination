@@ -197,10 +197,15 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
         #endregion
 
+        /*Поле для хранения данных из основной таблицы Excel
+         с информацией по файлам, которые нужно обрабатывать*/
         public List<ColumnValues> GeneralTable { get; set; }
 
         #region КОМАНДЫ
 
+        /*Основная команда, запускающая процесс обработки моделей, 
+         подготовки и отправки данных в Axapta,
+        а также сохранения данных в различных форматах*/
         private RelayCommand _startCommand;
         public RelayCommand StartCommand
         {
@@ -210,7 +215,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                 {
                     if(PathToAllFiles != null)
                     {
-                       
                         ExcelService excelService = new ExcelService();
                         RevitFileService revitFileService = new RevitFileService(SendValuesCommand.App);
                          
@@ -249,20 +253,23 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
                                             var allElementsByView = new FilteredElementCollector(doc, elementId).WhereElementIsNotElementType().ToElements();
 
-                                            foreach (Element element in allElementsByView)
+                                            if(allElementsByView != null)
                                             {
-                                                if (element != null)
+                                                foreach (Element element in allElementsByView)
                                                 {
-                                                    try
+                                                    if (element != null)
                                                     {
-                                                        if (element.Category != null)
+                                                        try
                                                         {
-                                                            revitModelElementService.SetParametersValuesToElement(element, sectionNumber);
+                                                            if (element.Category != null)
+                                                            {
+                                                                revitModelElementService.SetParametersValuesToElement(element, sectionNumber);
+                                                            }
                                                         }
-                                                    }
-                                                    catch (InvalidObjectException)
-                                                    {
-                                                        continue;
+                                                        catch (InvalidObjectException)
+                                                        {
+                                                            continue;
+                                                        }
                                                     }
                                                 }
                                             }
@@ -274,15 +281,12 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                     using (Transaction tr = new Transaction(doc))
                                     {
                                         tr.Start("Восстановление формы");
-                                        try
-                                        {
+
+                                        if (floors != null)
                                             revitModelElementService.RestorateForm(floors);
+                                        if (roofs != null)
                                             revitModelElementService.RestorateForm(roofs);
-                                        }
-                                        catch
-                                        {
-                                            continue;
-                                        }
+                                        
 
                                         tr.Commit();
                                     }
@@ -290,30 +294,39 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                     using (Transaction tr = new Transaction(doc))
                                     {
                                         tr.Start("Создание частей");
-                                        try
-                                        {
-                                            PartUtils.CreateParts(doc, new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Floors).WhereElementIsNotElementType().ToElementIds());
-                                            PartUtils.CreateParts(doc, new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Roofs).WhereElementIsNotElementType().ToElementIds());
-                                            PartUtils.CreateParts(doc, new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Ceilings).WhereElementIsNotElementType().ToElementIds());
-                                            PartUtils.CreateParts(doc, new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Walls).WhereElementIsNotElementType().ToElementIds());
-                                            PartUtils.CreateParts(doc, new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_StructuralFoundation).WhereElementIsNotElementType().ToElementIds());
-                                        }
-                                        catch
-                                        {
-                                            continue;
-                                        }
+
+                                        if(floorIds != null)
+                                            revitModelElementService.CreatePartsFromElement(floorIds);
+
+                                        if (roofIds != null)
+                                            revitModelElementService.CreatePartsFromElement(roofIds);
+
+                                        if (ceilingIds != null)
+                                            revitModelElementService.CreatePartsFromElement(ceilingIds);
+
+                                        if (wallIds != null)
+                                            revitModelElementService.CreatePartsFromElement(wallIds);
+
+                                        if (foundationIds != null)
+                                            revitModelElementService.CreatePartsFromElement(foundationIds);
+
+                                        doc.Regenerate();
 
                                         tr.Commit();
                                     }
 
-                                    using (Transaction tr = new Transaction(doc))
-                                    {
-                                        tr.Start("Заполнение параметров классификатора");
+                                    //using (Transaction tr = new Transaction(doc))
+                                    //{
+                                    //    tr.Start("Заполнение параметров классификатора");
 
 
+                                    //    doc.Regenerate();
 
-                                        tr.Commit();
-                                    }
+                                    //    tr.Commit();
+                                    //}
+                                    revitFileService.ExportToNWC(PathToSaveColumn.RowValues[i].Value, doc);
+                                    revitFileService.SaveAndCloseRVTFile(PathToSaveColumn.RowValues[i].Value, doc);
+
                                 }
                                 else
                                 {
@@ -397,7 +410,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             {
                 return _getAllFilesCommand ?? new RelayCommand(obj =>
                 {
-                    GetAllFilesMethod();
+                    GetGeneralExcelTableMethod();
                 }
                 );
             }
@@ -405,9 +418,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
         #endregion
 
-        
-
-        private void GetAllFilesMethod()
+        private void GetGeneralExcelTableMethod()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.ShowDialog();
