@@ -63,7 +63,7 @@ namespace CDS.Revit.Coordination.Services.Revit
 
             // Закрываем файл
 
-            doc.Close(true);
+            doc.Close(false);
         }
 
         /*Метод экспорта 3D вида в модели в формат .nwc

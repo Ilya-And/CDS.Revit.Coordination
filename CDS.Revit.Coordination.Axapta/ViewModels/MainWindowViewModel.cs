@@ -43,9 +43,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             get => _projectNameColumn;
             set
             {
-                _projectNameColumn = (from column in GeneralTable
-                                where column.ColumnName == "Проект"
-                                select column).FirstOrDefault();
+                _projectNameColumn = value;
                 OnPropertyChanged("ProjectNameColumn");
             }
         }
@@ -56,9 +54,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             get => _projectSectionColumn;
             set
             {
-                _projectSectionColumn = (from column in GeneralTable
-                                   where column.ColumnName == "Раздел"
-                                   select column).FirstOrDefault();
+                _projectSectionColumn = value;
                 OnPropertyChanged("ProjectSectionColumn");
             }
         }
@@ -69,9 +65,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             get => _pathToSaveColumn;
             set
             {
-                _pathToSaveColumn = (from column in GeneralTable
-                               where column.ColumnName == "ПутьДляСохранения"
-                               select column).FirstOrDefault();
+                _pathToSaveColumn = value;
                 OnPropertyChanged("PathToSaveColumn");
             }
         }
@@ -84,6 +78,17 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             {
                 _pathToOpenColumn = value;
                 OnPropertyChanged("PathToOpenColumn");
+            }
+        }
+
+        private ColumnValues _pathTableColumn;
+        public ColumnValues PathTableColumn
+        {
+            get => _pathTableColumn;
+            set
+            {
+                _pathTableColumn = value;
+                OnPropertyChanged("PathTableColumn");
             }
         }
         private void GetColumnsFromExcel()
@@ -103,18 +108,10 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             PathToOpenColumn = (from column in GeneralTable
                                  where column.ColumnName == "Путь"
                                  select column).FirstOrDefault();
-        }
-        private ColumnValues _pathTableColumn;
-        public ColumnValues PathTableColumn
-        {
-            get => _pathTableColumn;
-            set
-            {
-                _pathTableColumn = (from column in GeneralTable
-                              where column.ColumnName == "ПутьТаблицыВыбора"
-                              select column).FirstOrDefault();
-                OnPropertyChanged("PathTableColumn");
-            }
+
+            PathTableColumn = (from column in GeneralTable
+                               where column.ColumnName == "ПутьТаблицыВыбора"
+                               select column).FirstOrDefault();
         }
         
 
@@ -231,10 +228,16 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                 var unCorrectLevelsNames = revitModelElementService.GetUnCorrectLevelsNames();
                                 if(unCorrectLevelsNames == "")
                                 {
+                                    var allElementsInModel = new FilteredElementCollector(doc).WhereElementIsNotElementType().ToElements();
+
                                     var views3DForSetSectionParameter = revitModelElementService.Get3DViewForSetSectionParameter();
 
                                     var floors = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Floors).WhereElementIsNotElementType().ToElements();
                                     var roofs = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Roofs).WhereElementIsNotElementType().ToElements();
+                                    var ceilings = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Ceilings).WhereElementIsNotElementType().ToElements();
+                                    var walls = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Walls).WhereElementIsNotElementType().ToElements();
+                                    var foundations = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_StructuralFoundation).WhereElementIsNotElementType().ToElements();
+
 
                                     var floorIds = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Floors).WhereElementIsNotElementType().ToElementIds();
                                     var roofIds = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Roofs).WhereElementIsNotElementType().ToElementIds();
@@ -315,15 +318,350 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                         tr.Commit();
                                     }
 
+                                    using (Transaction tr = new Transaction(doc))
+                                    {
+                                        tr.Start("Заполнение классификатора");
+
+                                        var classTable = excelService.GetValuesFromExcelTable(PathTableColumn.RowValues[i].Value);
+
+                                        ColumnValues category = (from column in classTable
+                                                                 where column.ColumnName == "Категория"
+                                                                 select column).FirstOrDefault();
+
+                                        ColumnValues parameter1 = (from column in classTable
+                                                                   where column.ColumnName == "Параметр_1"
+                                                                 select column).FirstOrDefault();
+
+                                        ColumnValues parameter1Condition = (from column in classTable
+                                                                            where column.ColumnName == "Условие_1"
+                                                                            select column).FirstOrDefault();
+
+                                        ColumnValues parameterValue1 = (from column in classTable
+                                                                        where column.ColumnName == "Значение_1"
+                                                                        select column).FirstOrDefault();
+
+                                        ColumnValues parameter2 = (from column in classTable
+                                                                   where column.ColumnName == "Параметр_2"
+                                                                  select column).FirstOrDefault();
+
+                                        ColumnValues parameter2Condition = (from column in classTable
+                                                                            where column.ColumnName == "Условие_2"
+                                                                            select column).FirstOrDefault();
+
+                                        ColumnValues parameterValue2 = (from column in classTable
+                                                                        where column.ColumnName == "Значение_2"
+                                                                        select column).FirstOrDefault();
+
+                                        ColumnValues parameter3 = (from column in GeneralTable
+                                                                  where column.ColumnName == "Параметр_3"
+                                                                  select column).FirstOrDefault();
+
+                                        ColumnValues parameter3Condition = (from column in classTable
+                                                                            where column.ColumnName == "Условие_3"
+                                                                            select column).FirstOrDefault();
+
+                                        ColumnValues parameterValue3 = (from column in classTable
+                                                                        where column.ColumnName == "Значение_3"
+                                                                        select column).FirstOrDefault();
+
+
+                                        ColumnValues parameter4 = (from column in classTable
+                                                                   where column.ColumnName == "Параметр_4"
+                                                                  select column).FirstOrDefault();
+
+                                        ColumnValues parameter4Condition = (from column in classTable
+                                                                            where column.ColumnName == "Условие_4"
+                                                                            select column).FirstOrDefault();
+
+                                        ColumnValues parameterValue4 = (from column in classTable
+                                                                        where column.ColumnName == "Значение_4"
+                                                                        select column).FirstOrDefault();
+
+                                        ColumnValues parameter5 = (from column in classTable
+                                                                   where column.ColumnName == "Параметр_5"
+                                                                  select column).FirstOrDefault();
+
+                                        ColumnValues parameter5Condition = (from column in classTable
+                                                                            where column.ColumnName == "Условие_5"
+                                                                            select column).FirstOrDefault();
+
+                                        ColumnValues parameterValue5 = (from column in classTable
+                                                                        where column.ColumnName == "Значение_5"
+                                                                        select column).FirstOrDefault();
+
+                                        ColumnValues classifierForLine = (from column in classTable
+                                                                   where column.ColumnName == "ЦДС_Классификатор(Пр)"
+                                                                   select column).FirstOrDefault();
+
+                                        ColumnValues classifierForOther = (from column in classTable
+                                                                          where column.ColumnName == "ЦДС_Классификатор(Кр)"
+                                                                          select column).FirstOrDefault();
+
+                                        ColumnValues materialClassifier = (from column in classTable
+                                                                           where column.ColumnName == "ЦДС_Классификатор материалов"
+                                                                           select column).FirstOrDefault();
+
+                                        
+                                        ElementId view3D = revitModelElementService.Get3DViewForExportToNWC().Id;
+
+                                        var allElementsByView = new FilteredElementCollector(doc, view3D).WhereElementIsNotElementType().ToElements();
+                                        foreach (Element element in allElementsByView)
+                                        {
+                                            try
+                                            {
+                                                
+
+
+                                                var categoryNameFromElement = "";
+                                                try
+                                                {
+                                                    categoryNameFromElement = element.Category.Name;
+                                                }
+                                                catch
+                                                {
+                                                    continue;
+                                                }
+
+                                                if (categoryNameFromElement != "")
+                                                {
+                                                    for (int n = 0; n <= classTable[0].RowValues.Count - 1; n++)
+                                                    {
+                                                        var categoryNameFromTable = "";
+
+                                                        var parameter1FromTable = "";
+                                                        var parameter1ConditionFromTable = "";
+                                                        var parameterValue1FromTable = "";
+
+                                                        var parameter2FromTable = "";
+                                                        var parameter2ConditionFromTable = "";
+                                                        var parameterValue2FromTable = "";
+
+                                                        var parameter3FromTable = "";
+                                                        var parameter3ConditionFromTable = "";
+                                                        var parameterValue3FromTable = "";
+
+                                                        var parameter4FromTable = "";
+                                                        var parameter4ConditionFromTable = "";
+                                                        var parameterValue4FromTable = "";
+
+                                                        var parameter5FromTable = "";
+                                                        var parameter5ConditionFromTable = "";
+                                                        var parameterValue5FromTable = "";
+
+                                                        var classifierLineFromTable = "";
+                                                        var classifierOtherFromTable = "";
+
+                                                        var materialClassifierFromTable = "";
+
+                                                        categoryNameFromTable = category.RowValues[n].Value;
+
+                                                        if (parameter1 != null)
+                                                        {
+                                                            parameter1FromTable = parameter1.RowValues[n].Value;
+                                                            parameter1ConditionFromTable = parameter1Condition.RowValues[n].Value;
+                                                            parameterValue1FromTable = parameterValue1.RowValues[n].Value;
+                                                        }
+
+                                                        if (parameter2 != null)
+                                                        {
+                                                            parameter2FromTable = parameter2.RowValues[n].Value;
+                                                            parameter2ConditionFromTable = parameter2Condition.RowValues[n].Value;
+                                                            parameterValue2FromTable = parameterValue2.RowValues[n].Value;
+                                                        }
+
+                                                        if (parameter3 != null)
+                                                        {
+                                                            parameter3FromTable = parameter3.RowValues[n].Value;
+                                                            parameter3ConditionFromTable = parameter3Condition.RowValues[n].Value;
+                                                            parameterValue3FromTable = parameterValue3.RowValues[n].Value;
+                                                        }
+
+                                                        if (parameter4 != null)
+                                                        {
+                                                            parameter4FromTable = parameter4.RowValues[n].Value;
+                                                            parameter4ConditionFromTable = parameter4Condition.RowValues[n].Value;
+                                                            parameterValue4FromTable = parameterValue4.RowValues[n].Value;
+                                                        }
+
+                                                        if (parameter5 != null)
+                                                        {
+                                                            parameter5FromTable = parameter5.RowValues[n].Value;
+                                                            parameter5ConditionFromTable = parameter5Condition.RowValues[n].Value;
+                                                            parameterValue5FromTable = parameterValue5.RowValues[n].Value;
+                                                        }
+
+                                                        classifierLineFromTable = classifierForLine.RowValues[n].Value;
+                                                        classifierOtherFromTable = classifierForOther.RowValues[n].Value;
+
+                                                        materialClassifierFromTable = materialClassifier.RowValues[n].Value;
+
+                                                        if(categoryNameFromElement == categoryNameFromTable)
+                                                        {
+                                                            switch (categoryNameFromElement)
+                                                            {
+                                                                case "Части":
+                                                                    Part asPart = element as Part;
+                                                                    var categoryNameHost = asPart.get_Parameter(BuiltInParameter.DPART_ORIGINAL_CATEGORY).AsString();
+
+                                                                    var parameterValue1FromElement = "";
+                                                                    var parameterValue2FromElement = "";
+                                                                    var parameterValue3FromElement = "";
+                                                                    var parameterValue4FromElement = "";
+                                                                    var parameterValue5FromElement = "";
+
+                                                                    parameterValue1FromElement = asPart.LookupParameter(parameter1FromTable)?.AsString();
+                                                                    parameterValue2FromElement = asPart.LookupParameter(parameter2FromTable)?.AsString();
+                                                                    parameterValue3FromElement = asPart.LookupParameter(parameter3FromTable)?.AsString();
+                                                                    parameterValue4FromElement = asPart.LookupParameter(parameter4FromTable)?.AsString();
+                                                                    parameterValue5FromElement = asPart.LookupParameter(parameter5FromTable)?.AsString();
+
+                                                                    bool isFirstParameterValueMatch = false;
+                                                                    bool isSecondParameterValueMatch = false;
+                                                                    bool isThirdParameterValueMatch = false;
+                                                                    bool isFouthParameterValueMatch = false;
+                                                                    bool isFifthParameterValueMatch = false;
+
+                                                                    isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
+                                                                    isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
+                                                                    isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
+                                                                    isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
+                                                                    isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
+
+                                                                    if (isFirstParameterValueMatch == true &&
+                                                                        isSecondParameterValueMatch == true &&
+                                                                        isThirdParameterValueMatch == true &&
+                                                                        isFouthParameterValueMatch == true &&
+                                                                        isFifthParameterValueMatch == true)
+                                                                    {
+                                                                        string classifierForSet = "";
+                                                                        if (categoryNameHost == "Стены")
+                                                                        {
+                                                                            var hostElementId = asPart.GetSourceElementIds().ToList()[0].HostElementId;
+                                                                            var hostElement = doc.GetElement(hostElementId) as Wall;
+                                                                            var hostElementCurve = ((LocationCurve)hostElement.Location).Curve;
+                                                                            var asLine = hostElementCurve as Line;
+                                                                            if (asLine != null)
+                                                                            {
+                                                                                classifierForSet = classifierLineFromTable;
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                classifierForSet = classifierOtherFromTable;
+                                                                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            classifierForSet = classifierLineFromTable;
+                                                                        }
+                                                                        asPart.LookupParameter("ЦДС_Классификатор")?.Set(classifierLineFromTable);
+
+                                                                        if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
+                                                                        {
+                                                                            asPart.LookupParameter("ЦДС_Классификатор материалов")?.Set(materialClassifierFromTable);
+                                                                        }
+                                                                    }
+
+                                                                    break;
+
+                                                                case "Несущие колонны":
+
+                                                                    break;
+
+                                                                case "Каркас несущий":
+
+                                                                    break;
+
+                                                                case "Лестницы":
+
+                                                                    break;
+
+                                                                case "Фундамент несущей конструкции":
+
+                                                                    break;
+
+                                                                case "Ограждение":
+
+                                                                    break;
+
+                                                                case "Обобщенные модели":
+
+                                                                    break;
+
+                                                                case "Двери":
+
+                                                                    break;
+
+                                                                case "Окна":
+
+                                                                    break;
+
+                                                                case "Стены":
+
+                                                                    break;
+
+                                                                case "Панели витража":
+
+                                                                    break;
+
+                                                                case "Импосты витража":
+
+                                                                    break;
+
+                                                                case "Воздуховоды":
+
+                                                                    break;
+
+                                                                case "Трубы":
+
+                                                                    break;
+
+                                                                case "Материалы изоляции воздуховодов":
+
+                                                                    break;
+
+                                                                case "Материалы изоляции труб":
+
+                                                                    break;
+
+                                                                case "Арматура воздуховодов":
+
+                                                                    break;
+
+                                                                case "Арматура трубопроводов":
+
+                                                                    break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + element);
+                                            }
+                                        }
+                                        
+                                            
+
+
+                                        tr.Commit();
+                                    }
+
                                     //using (Transaction tr = new Transaction(doc))
                                     //{
-                                    //    tr.Start("Заполнение параметров классификатора");
-
-
-                                    //    doc.Regenerate();
+                                    //    tr.Start("");
 
                                     //    tr.Commit();
                                     //}
+
+                                    //using (Transaction tr = new Transaction(doc))
+                                    //{
+                                    //    tr.Start("");
+
+                                    //    tr.Commit();
+                                    //}
+
+
                                     revitFileService.ExportToNWC(PathToSaveColumn.RowValues[i].Value, doc);
                                     revitFileService.SaveAndCloseRVTFile(PathToSaveColumn.RowValues[i].Value, doc);
 
@@ -337,7 +675,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                         }
                         catch(Exception ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            MessageBox.Show(ex.StackTrace);
                         }
                     }
                     else
@@ -401,6 +739,34 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                 }
                 );
             }
+        }
+
+        private static bool IsParameterValueMatch(string parameter1ConditionFromTable, string parameterValue1FromTable, string parameterValue1FromElement)
+        {
+            bool isParameterValueMatch = false;
+
+            if (parameter1ConditionFromTable == "Равно")
+            {
+                isParameterValueMatch = parameterValue1FromElement == parameterValue1FromTable;
+            }
+            else if (parameter1ConditionFromTable == "НеРавно")
+            {
+                isParameterValueMatch = parameterValue1FromElement == parameterValue1FromTable;
+            }
+            else if (parameter1ConditionFromTable == "Содержит")
+            {
+                isParameterValueMatch = parameterValue1FromElement.Contains(parameterValue1FromTable);
+            }
+            else if (parameter1ConditionFromTable == "НеСодержит")
+            {
+                isParameterValueMatch = !parameterValue1FromElement.Contains(parameterValue1FromTable);
+            }
+            else
+            {
+                isParameterValueMatch = true;
+            }
+
+            return isParameterValueMatch;
         }
 
         private RelayCommand _getAllFilesCommand;
