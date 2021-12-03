@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Mechanical;
+using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.Exceptions;
 using CDS.Revit.Coordination.Services.Excel;
 using CDS.Revit.Coordination.Services.Revit;
@@ -33,6 +35,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                 OnPropertyChanged("IsAllFilesWork");
             }
         }
+
+        public string UnprocessedFiles { get; set; }
 
         #region ДАННЫЕ ИЗ ОСНОВНОГО ФАЙЛА EXCEL
 
@@ -214,12 +218,24 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                     {
                         ExcelService excelService = new ExcelService();
                         RevitFileService revitFileService = new RevitFileService(SendValuesCommand.App);
+
+                        bool isContinue = true;
                          
                         try
                         {
                             List<ColumnValues> generalTable = excelService.GetValuesFromExcelTable(PathToAllFiles);
                             GeneralTable = generalTable;
                             GetColumnsFromExcel();
+
+                        }
+                        catch (Exception ex)
+                        {
+                            isContinue = false;
+                            MessageBox.Show("Не удалось обработать Excel файл!\nИ вот почему:\n" + ex.Message + "\n" + ex.StackTrace);
+                        }
+
+                        if(isContinue == true)
+                        {
 
                             for (int i = 0; i <= GeneralTable[1].RowValues.Count - 1; i++)
                             {
@@ -237,7 +253,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                     var ceilings = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Ceilings).WhereElementIsNotElementType().ToElements();
                                     var walls = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Walls).WhereElementIsNotElementType().ToElements();
                                     var foundations = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_StructuralFoundation).WhereElementIsNotElementType().ToElements();
-
 
                                     var floorIds = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Floors).WhereElementIsNotElementType().ToElementIds();
                                     var roofIds = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Roofs).WhereElementIsNotElementType().ToElementIds();
@@ -289,7 +304,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                             revitModelElementService.RestorateForm(floors);
                                         if (roofs != null)
                                             revitModelElementService.RestorateForm(roofs);
-                                        
 
                                         tr.Commit();
                                     }
@@ -325,12 +339,12 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                         var classTable = excelService.GetValuesFromExcelTable(PathTableColumn.RowValues[i].Value);
 
                                         ColumnValues category = (from column in classTable
-                                                                 where column.ColumnName == "Категория"
-                                                                 select column).FirstOrDefault();
+                                                                    where column.ColumnName == "Категория"
+                                                                    select column).FirstOrDefault();
 
                                         ColumnValues parameter1 = (from column in classTable
-                                                                   where column.ColumnName == "Параметр_1"
-                                                                 select column).FirstOrDefault();
+                                                                    where column.ColumnName == "Параметр_1"
+                                                                    select column).FirstOrDefault();
 
                                         ColumnValues parameter1Condition = (from column in classTable
                                                                             where column.ColumnName == "Условие_1"
@@ -341,8 +355,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         select column).FirstOrDefault();
 
                                         ColumnValues parameter2 = (from column in classTable
-                                                                   where column.ColumnName == "Параметр_2"
-                                                                  select column).FirstOrDefault();
+                                                                    where column.ColumnName == "Параметр_2"
+                                                                    select column).FirstOrDefault();
 
                                         ColumnValues parameter2Condition = (from column in classTable
                                                                             where column.ColumnName == "Условие_2"
@@ -353,8 +367,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         select column).FirstOrDefault();
 
                                         ColumnValues parameter3 = (from column in GeneralTable
-                                                                  where column.ColumnName == "Параметр_3"
-                                                                  select column).FirstOrDefault();
+                                                                    where column.ColumnName == "Параметр_3"
+                                                                    select column).FirstOrDefault();
 
                                         ColumnValues parameter3Condition = (from column in classTable
                                                                             where column.ColumnName == "Условие_3"
@@ -366,8 +380,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
 
                                         ColumnValues parameter4 = (from column in classTable
-                                                                   where column.ColumnName == "Параметр_4"
-                                                                  select column).FirstOrDefault();
+                                                                    where column.ColumnName == "Параметр_4"
+                                                                    select column).FirstOrDefault();
 
                                         ColumnValues parameter4Condition = (from column in classTable
                                                                             where column.ColumnName == "Условие_4"
@@ -378,8 +392,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         select column).FirstOrDefault();
 
                                         ColumnValues parameter5 = (from column in classTable
-                                                                   where column.ColumnName == "Параметр_5"
-                                                                  select column).FirstOrDefault();
+                                                                    where column.ColumnName == "Параметр_5"
+                                                                    select column).FirstOrDefault();
 
                                         ColumnValues parameter5Condition = (from column in classTable
                                                                             where column.ColumnName == "Условие_5"
@@ -390,16 +404,16 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         select column).FirstOrDefault();
 
                                         ColumnValues classifierForLine = (from column in classTable
-                                                                   where column.ColumnName == "ЦДС_Классификатор(Пр)"
-                                                                   select column).FirstOrDefault();
+                                                                    where column.ColumnName == "ЦДС_Классификатор(Пр)"
+                                                                    select column).FirstOrDefault();
 
                                         ColumnValues classifierForOther = (from column in classTable
-                                                                          where column.ColumnName == "ЦДС_Классификатор(Кр)"
-                                                                          select column).FirstOrDefault();
+                                                                            where column.ColumnName == "ЦДС_Классификатор(Кр)"
+                                                                            select column).FirstOrDefault();
 
                                         ColumnValues materialClassifier = (from column in classTable
-                                                                           where column.ColumnName == "ЦДС_Классификатор материалов"
-                                                                           select column).FirstOrDefault();
+                                                                            where column.ColumnName == "ЦДС_Классификатор материалов"
+                                                                            select column).FirstOrDefault();
 
                                         
                                         ElementId view3D = revitModelElementService.Get3DViewForExportToNWC().Id;
@@ -497,17 +511,25 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
                                                         if(categoryNameFromElement == categoryNameFromTable)
                                                         {
+                                                            var parameterValue1FromElement = "";
+                                                            var parameterValue2FromElement = "";
+                                                            var parameterValue3FromElement = "";
+                                                            var parameterValue4FromElement = "";
+                                                            var parameterValue5FromElement = "";
+
+                                                            bool isFirstParameterValueMatch = false;
+                                                            bool isSecondParameterValueMatch = false;
+                                                            bool isThirdParameterValueMatch = false;
+                                                            bool isFouthParameterValueMatch = false;
+                                                            bool isFifthParameterValueMatch = false;
+
+                                                            string classifierForSet = "";
+
                                                             switch (categoryNameFromElement)
                                                             {
                                                                 case "Части":
                                                                     Part asPart = element as Part;
                                                                     var categoryNameHost = asPart.get_Parameter(BuiltInParameter.DPART_ORIGINAL_CATEGORY).AsString();
-
-                                                                    var parameterValue1FromElement = "";
-                                                                    var parameterValue2FromElement = "";
-                                                                    var parameterValue3FromElement = "";
-                                                                    var parameterValue4FromElement = "";
-                                                                    var parameterValue5FromElement = "";
 
                                                                     parameterValue1FromElement = asPart.LookupParameter(parameter1FromTable)?.AsString();
                                                                     parameterValue2FromElement = asPart.LookupParameter(parameter2FromTable)?.AsString();
@@ -515,11 +537,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     parameterValue4FromElement = asPart.LookupParameter(parameter4FromTable)?.AsString();
                                                                     parameterValue5FromElement = asPart.LookupParameter(parameter5FromTable)?.AsString();
 
-                                                                    bool isFirstParameterValueMatch = false;
-                                                                    bool isSecondParameterValueMatch = false;
-                                                                    bool isThirdParameterValueMatch = false;
-                                                                    bool isFouthParameterValueMatch = false;
-                                                                    bool isFifthParameterValueMatch = false;
 
                                                                     isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
                                                                     isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
@@ -533,7 +550,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         isFouthParameterValueMatch == true &&
                                                                         isFifthParameterValueMatch == true)
                                                                     {
-                                                                        string classifierForSet = "";
                                                                         if (categoryNameHost == "Стены")
                                                                         {
                                                                             var hostElementId = asPart.GetSourceElementIds().ToList()[0].HostElementId;
@@ -549,11 +565,34 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                                 classifierForSet = classifierOtherFromTable;
                                                                             }
                                                                         }
+                                                                        else if (categoryNameHost == "Выступающие профили")
+                                                                        {
+                                                                            var hostElementId = asPart.GetSourceElementIds().ToList()[0].HostElementId;
+                                                                            var hostWallSweepElement = doc.GetElement(hostElementId) as WallSweep;
+
+                                                                            if(hostWallSweepElement != null)
+                                                                            {
+                                                                                var hostElement = doc.GetElement(hostWallSweepElement.GetHostIds()[0]) as Wall;
+                                                                                if(hostElement != null)
+                                                                                {
+                                                                                    var hostElementCurve = ((LocationCurve)hostElement.Location).Curve;
+                                                                                    var asLine = hostElementCurve as Line;
+                                                                                    if (asLine != null)
+                                                                                    {
+                                                                                        classifierForSet = classifierLineFromTable;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        classifierForSet = classifierOtherFromTable;
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
                                                                         else
                                                                         {
                                                                             classifierForSet = classifierLineFromTable;
                                                                         }
-                                                                        asPart.LookupParameter("ЦДС_Классификатор")?.Set(classifierLineFromTable);
+                                                                        asPart.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
 
                                                                         if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
                                                                         {
@@ -563,73 +602,210 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
                                                                     break;
 
-                                                                case "Несущие колонны":
-
-                                                                    break;
-
-                                                                case "Каркас несущий":
-
-                                                                    break;
-
-                                                                case "Лестницы":
-
-                                                                    break;
-
-                                                                case "Фундамент несущей конструкции":
-
-                                                                    break;
-
-                                                                case "Ограждение":
-
-                                                                    break;
-
-                                                                case "Обобщенные модели":
-
-                                                                    break;
-
-                                                                case "Двери":
-
-                                                                    break;
-
-                                                                case "Окна":
-
-                                                                    break;
-
-                                                                case "Стены":
-
-                                                                    break;
-
-                                                                case "Панели витража":
-
-                                                                    break;
-
-                                                                case "Импосты витража":
-
-                                                                    break;
-
                                                                 case "Воздуховоды":
+                                                                    Duct asDuct = element as Duct;
+
+                                                                    parameterValue1FromElement = asDuct.LookupParameter(parameter1FromTable)?.AsString();
+                                                                    parameterValue2FromElement = asDuct.LookupParameter(parameter2FromTable)?.AsString();
+                                                                    parameterValue3FromElement = asDuct.LookupParameter(parameter3FromTable)?.AsString();
+                                                                    parameterValue4FromElement = asDuct.LookupParameter(parameter4FromTable)?.AsString();
+                                                                    parameterValue5FromElement = asDuct.LookupParameter(parameter5FromTable)?.AsString();
+
+
+                                                                    isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
+                                                                    isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
+                                                                    isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
+                                                                    isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
+                                                                    isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
+
+                                                                    if (isFirstParameterValueMatch == true &&
+                                                                        isSecondParameterValueMatch == true &&
+                                                                        isThirdParameterValueMatch == true &&
+                                                                        isFouthParameterValueMatch == true &&
+                                                                        isFifthParameterValueMatch == true)
+                                                                    {
+                                                                        classifierForSet = classifierLineFromTable;
+
+                                                                        try
+                                                                        {
+                                                                            asDuct.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
+
+                                                                            if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
+                                                                            {
+                                                                                asDuct.LookupParameter("ЦДС_Классификатор материалов")?.Set(materialClassifierFromTable);
+                                                                            }
+                                                                        }
+                                                                        catch
+                                                                        {
+                                                                            break;
+                                                                        }
+                                                                    }
 
                                                                     break;
 
                                                                 case "Трубы":
+                                                                    Pipe asPipe = element as Pipe;
+
+                                                                    parameterValue1FromElement = asPipe.LookupParameter(parameter1FromTable)?.AsString();
+                                                                    parameterValue2FromElement = asPipe.LookupParameter(parameter2FromTable)?.AsString();
+                                                                    parameterValue3FromElement = asPipe.LookupParameter(parameter3FromTable)?.AsString();
+                                                                    parameterValue4FromElement = asPipe.LookupParameter(parameter4FromTable)?.AsString();
+                                                                    parameterValue5FromElement = asPipe.LookupParameter(parameter5FromTable)?.AsString();
+
+                                                                    isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
+                                                                    isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
+                                                                    isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
+                                                                    isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
+                                                                    isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
+
+                                                                    if (isFirstParameterValueMatch == true &&
+                                                                        isSecondParameterValueMatch == true &&
+                                                                        isThirdParameterValueMatch == true &&
+                                                                        isFouthParameterValueMatch == true &&
+                                                                        isFifthParameterValueMatch == true)
+                                                                    {
+                                                                        classifierForSet = classifierLineFromTable;
+
+                                                                        try
+                                                                        {
+                                                                            asPipe.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
+
+                                                                            if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
+                                                                            {
+                                                                                asPipe.LookupParameter("ЦДС_Классификатор материалов")?.Set(materialClassifierFromTable);
+                                                                            }
+                                                                        }
+                                                                        catch
+                                                                        {
+                                                                            break;
+                                                                        }
+                                                                    }
 
                                                                     break;
 
                                                                 case "Материалы изоляции воздуховодов":
+                                                                    DuctInsulation asDuctInsulation = element as DuctInsulation;
+
+                                                                    parameterValue1FromElement = asDuctInsulation.LookupParameter(parameter1FromTable)?.AsString();
+                                                                    parameterValue2FromElement = asDuctInsulation.LookupParameter(parameter2FromTable)?.AsString();
+                                                                    parameterValue3FromElement = asDuctInsulation.LookupParameter(parameter3FromTable)?.AsString();
+                                                                    parameterValue4FromElement = asDuctInsulation.LookupParameter(parameter4FromTable)?.AsString();
+                                                                    parameterValue5FromElement = asDuctInsulation.LookupParameter(parameter5FromTable)?.AsString();
+
+                                                                    isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
+                                                                    isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
+                                                                    isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
+                                                                    isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
+                                                                    isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
+
+                                                                    if (isFirstParameterValueMatch == true &&
+                                                                        isSecondParameterValueMatch == true &&
+                                                                        isThirdParameterValueMatch == true &&
+                                                                        isFouthParameterValueMatch == true &&
+                                                                        isFifthParameterValueMatch == true)
+                                                                    {
+                                                                        classifierForSet = classifierLineFromTable;
+
+                                                                        try
+                                                                        {
+                                                                            asDuctInsulation.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
+
+                                                                            if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
+                                                                            {
+                                                                                asDuctInsulation.LookupParameter("ЦДС_Классификатор материалов")?.Set(materialClassifierFromTable);
+                                                                            }
+                                                                        }
+                                                                        catch
+                                                                        {
+                                                                            break;
+                                                                        }
+                                                                    }
 
                                                                     break;
 
                                                                 case "Материалы изоляции труб":
+                                                                    PipeInsulation asPipeInsulation = element as PipeInsulation;
 
+                                                                    parameterValue1FromElement = asPipeInsulation.LookupParameter(parameter1FromTable)?.AsString();
+                                                                    parameterValue2FromElement = asPipeInsulation.LookupParameter(parameter2FromTable)?.AsString();
+                                                                    parameterValue3FromElement = asPipeInsulation.LookupParameter(parameter3FromTable)?.AsString();
+                                                                    parameterValue4FromElement = asPipeInsulation.LookupParameter(parameter4FromTable)?.AsString();
+                                                                    parameterValue5FromElement = asPipeInsulation.LookupParameter(parameter5FromTable)?.AsString();
+
+                                                                    isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
+                                                                    isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
+                                                                    isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
+                                                                    isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
+                                                                    isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
+
+                                                                    if (isFirstParameterValueMatch == true &&
+                                                                        isSecondParameterValueMatch == true &&
+                                                                        isThirdParameterValueMatch == true &&
+                                                                        isFouthParameterValueMatch == true &&
+                                                                        isFifthParameterValueMatch == true)
+                                                                    {
+                                                                        classifierForSet = classifierLineFromTable;
+
+                                                                        try
+                                                                        {
+                                                                            asPipeInsulation.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
+
+                                                                            if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
+                                                                            {
+                                                                                asPipeInsulation.LookupParameter("ЦДС_Классификатор материалов")?.Set(materialClassifierFromTable);
+                                                                            }
+                                                                        }
+                                                                        catch
+                                                                        {
+                                                                            break;
+                                                                        }
+                                                                    }
                                                                     break;
 
-                                                                case "Арматура воздуховодов":
+                                                                default:
+                                                                    try
+                                                                    {
+                                                                        FamilyInstance asFamilyInstance = element as FamilyInstance;
 
-                                                                    break;
+                                                                        if (asFamilyInstance != null)
+                                                                        {
+                                                                            if(!asFamilyInstance.Name.Contains("Свая") && !asFamilyInstance.Name.Contains("свая") && !asFamilyInstance.Name.Contains("ЛМ"))
+                                                                            {
+                                                                                parameterValue1FromElement = asFamilyInstance.LookupParameter(parameter1FromTable)?.AsString();
+                                                                                parameterValue2FromElement = asFamilyInstance.LookupParameter(parameter2FromTable)?.AsString();
+                                                                                parameterValue3FromElement = asFamilyInstance.LookupParameter(parameter3FromTable)?.AsString();
+                                                                                parameterValue4FromElement = asFamilyInstance.LookupParameter(parameter4FromTable)?.AsString();
+                                                                                parameterValue5FromElement = asFamilyInstance.LookupParameter(parameter5FromTable)?.AsString();
 
-                                                                case "Арматура трубопроводов":
+                                                                                isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
+                                                                                isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
+                                                                                isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
+                                                                                isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
+                                                                                isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
 
-                                                                    break;
+                                                                                if (isFirstParameterValueMatch == true &&
+                                                                                    isSecondParameterValueMatch == true &&
+                                                                                    isThirdParameterValueMatch == true &&
+                                                                                    isFouthParameterValueMatch == true &&
+                                                                                    isFifthParameterValueMatch == true)
+                                                                                {
+                                                                                    classifierForSet = classifierLineFromTable;
+                                                                                    asFamilyInstance.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
+
+                                                                                    if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
+                                                                                    {
+                                                                                        asFamilyInstance.LookupParameter("ЦДС_Классификатор материалов")?.Set(materialClassifierFromTable);
+                                                                                    }
+
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        break;
+                                                                    }
+                                                                    catch
+                                                                    {
+                                                                        break;
+                                                                    }
                                                             }
                                                         }
                                                     }
@@ -637,12 +813,10 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                             }
                                             catch (Exception ex)
                                             {
-                                                MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + element);
+                                                continue;
+                                                //MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + element);
                                             }
                                         }
-                                        
-                                            
-
 
                                         tr.Commit();
                                     }
@@ -661,9 +835,15 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                     //    tr.Commit();
                                     //}
 
+                                    if(IsSaveNWC == true)
+                                    {
+                                        revitFileService.ExportToNWC(PathToSaveColumn.RowValues[i].Value, doc);
+                                    }
 
-                                    revitFileService.ExportToNWC(PathToSaveColumn.RowValues[i].Value, doc);
-                                    revitFileService.SaveAndCloseRVTFile(PathToSaveColumn.RowValues[i].Value, doc);
+                                    if(IsSaveRVT == true)
+                                    {
+                                        revitFileService.SaveAndCloseRVTFile(PathToSaveColumn.RowValues[i].Value, doc);
+                                    }
 
                                 }
                                 else
@@ -673,10 +853,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                 }
                             }
                         }
-                        catch(Exception ex)
-                        {
-                            MessageBox.Show(ex.StackTrace);
-                        }
+                       
                     }
                     else
                     {
