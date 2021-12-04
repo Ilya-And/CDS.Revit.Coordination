@@ -10,6 +10,8 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.Exceptions;
+using CDS.Revit.Coordination.Axapta.Models;
+using CDS.Revit.Coordination.Services.Axapta;
 using CDS.Revit.Coordination.Services.Excel;
 using CDS.Revit.Coordination.Services.Revit;
 using Microsoft.Win32;
@@ -134,7 +136,27 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             }
         }
 
+        private string[] _pathToCSVFiles;
+        public string[] PathToCSVFiles
+        {
+            get => _pathToCSVFiles;
+            set
+            {
+                _pathToCSVFiles = value;
+                OnPropertyChanged("PathToCSVFiles");
+            }
+        }
 
+        private string _fileNamesCSVFiles;
+        public string FileNamesCSVFiles
+        {
+            get => _fileNamesCSVFiles;
+            set
+            {
+                _fileNamesCSVFiles = value;
+                OnPropertyChanged("FileNamesCSVFiles");
+            }
+        }
 
         #endregion
 
@@ -202,17 +224,25 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
          с информацией по файлам, которые нужно обрабатывать*/
         public List<ColumnValues> GeneralTable { get; set; }
 
+        /*Поле для хранения данных для отправки работ в Axapta
+         */
+        public List<WorkToSend> WorksListToSentValuesToAxapta { get; set; }
+
+        /*Поле для хранения данных для отправки номенклатур в Axapta
+         */
+        public List<MaterialToSend> MaterialsListToSentValuesToAxapta { get; set; }
+
         #region КОМАНДЫ
 
         /*Основная команда, запускающая процесс обработки моделей, 
          подготовки и отправки данных в Axapta,
         а также сохранения данных в различных форматах*/
-        private RelayCommand _startCommand;
-        public RelayCommand StartCommand
+        private RelayCommand _startPreparationCommand;
+        public RelayCommand StartPreparationCommand
         {
             get
             {
-                return _startCommand ?? new RelayCommand(obj =>
+                return _startPreparationCommand ?? new RelayCommand(obj =>
                 {
                     if(PathToAllFiles != null)
                     {
@@ -220,7 +250,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                         RevitFileService revitFileService = new RevitFileService(SendValuesCommand.App);
 
                         bool isContinue = true;
-                         
+
                         try
                         {
                             List<ColumnValues> generalTable = excelService.GetValuesFromExcelTable(PathToAllFiles);
@@ -423,9 +453,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                         {
                                             try
                                             {
-                                                
-
-
                                                 var categoryNameFromElement = "";
                                                 try
                                                 {
@@ -918,6 +945,70 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             }
         }
 
+        private RelayCommand _startSendCommand;
+        public RelayCommand StartSendCommand
+        {
+            get
+            {
+                return _startSendCommand ?? new RelayCommand(obj =>
+                {
+                    CSVService csvService = new CSVService();
+                    ExcelService excelService = new ExcelService();
+                    AxaptaService axaptaService = new AxaptaService();
+
+                    bool isContinue = true;
+                    Dictionary<string, List<AxaptaWorkset>> worksFromAxapta = new Dictionary<string, List<AxaptaWorkset>>();
+
+                    try
+                    {
+                        worksFromAxapta = axaptaService.GetWorksFromAxapta();
+                    }
+                    catch
+                    {
+                        isContinue = false;
+                        MessageBox.Show("Невозможно продолжить! Нет связи с Axapta.");
+                    }
+
+                    List<ColumnValues> tableWithValues = new List<ColumnValues>();
+
+                    if(isContinue == true)
+                    {
+                        foreach (string filePath in PathToCSVFiles)
+                        {
+                            if (filePath.Contains(".csv"))
+                            {
+                                tableWithValues = csvService.GetValuesFromCSVTable(filePath);
+                            }
+                            if (filePath.Contains(".xlsx"))
+                            {
+                                tableWithValues = excelService.GetValuesFromExcelTable(filePath);
+                            }
+
+                            var classifierColumn = (from column in tableWithValues
+                                                    where column.ColumnName == "ЦДС_Классификатор"
+                                                    select column).FirstOrDefault();
+                            var materialColumn = (from column in tableWithValues
+                                                  where column.ColumnName == "ЦДС_Классификатор материалов"
+                                                  select column).FirstOrDefault();
+                            var sectionNumberColumn = (from column in tableWithValues
+                                                       where column.ColumnName == "Номер секции"
+                                                       select column).FirstOrDefault();
+                            var levelNumberColumn = (from column in tableWithValues
+                                                     where column.ColumnName == "Этаж"
+                                                     select column).FirstOrDefault();
+
+
+                            for (int i = 0; i <= tableWithValues[0].RowValues.Count - 1; i++)
+                            {
+
+                            }
+                        }
+                    }
+                }
+                );
+            }
+        }
+
         private static bool IsParameterValueMatch(string parameter1ConditionFromTable, string parameterValue1FromTable, string parameterValue1FromElement)
         {
             bool isParameterValueMatch = false;
@@ -959,19 +1050,62 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             }
         }
 
+        private RelayCommand _getCSVFilesCommand;
+        public RelayCommand GetCSVFilesCommand
+        {
+            get
+            {
+                return _getCSVFilesCommand ?? new RelayCommand(obj =>
+                {
+                    GetCSVTableMethod();
+                }
+                );
+            }
+        }
+
         #endregion
+
+        private void GetCSVTableMethod()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Multiselect = true;
+            openFileDialog.Filter = "CSV (*.csv)|*.csv|Excel (*.xlsx)|*.xlsx|Все файлы (*.*)|*.*";
+            openFileDialog.FilterIndex = 2;
+            openFileDialog.ShowDialog();
+
+            PathToCSVFiles = openFileDialog.FileNames;
+
+            foreach(string filePath in PathToCSVFiles)
+            {
+                var splitedFileName = filePath.Split('\\');
+                string fileName = splitedFileName[splitedFileName.Length - 1];
+
+                if (fileName.Contains(".csv") || fileName.Contains(".xlsx"))
+                {
+                    if(FileNamesCSVFiles == "Выбран неверный формат!")
+                    {
+                        FileNamesCSVFiles = "";
+                    }
+
+                    FileNamesCSVFiles = FileNamesCSVFiles + fileName + "; ";
+                }
+                else
+                {
+                    FileNamesCSVFiles = "Выбран неверный формат!";
+                    break;
+                }
+            }
+        }
 
         private void GetGeneralExcelTableMethod()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Multiselect = false;
+            openFileDialog.Filter = "Excel (*.xlsx)|*.xlsx";
+            openFileDialog.FilterIndex = 2;
+
             openFileDialog.ShowDialog();
             PathToAllFiles = openFileDialog.FileName;
         }
-
-        private void StartCommandMethod()
-        {
-            MessageBox.Show("Work!");
-        }
-
     }
 }

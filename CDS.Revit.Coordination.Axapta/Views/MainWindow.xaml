@@ -7,71 +7,42 @@
              WindowStartupLocation="CenterScreen"
              MinHeight="300" MinWidth="500"
              Height="300" Width="500">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="40"/>
-        </Grid.RowDefinitions>
-        <StackPanel>
-            <TextBlock Margin= "5,5,5,0"
-                       Text="Выберите файл Excel с данными:"/>
+    <TabControl>
+        <TabItem Header="Подготовка данных">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="80"/>
-                </Grid.ColumnDefinitions>
-                <Border Height="25"
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <StackPanel>
+                    <TextBlock Margin= "5,5,5,0"
+                           Text="Выберите файл Excel с данными:"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Height="25"
+                                Margin="5"
+                                BorderThickness="0.6"
+                                BorderBrush="Gray">
+                            <TextBlock x:Name="GeneralFilePath"
+                                   Margin="5"
+                                   VerticalAlignment="Center"
+                                   Text="{Binding PathToAllFiles}"
+                                   Foreground="Gray"/>
+                        </Border>
+                        <Button x:Name="GetGeneralFileButton"
+                            Command="{Binding GetAllFilesCommand}"
+                            Grid.Column="1"
                             Margin="5"
-                            BorderThickness="0.6"
-                            BorderBrush="Gray">
-                    <TextBlock x:Name="GeneralFilePath"
-                               Margin="5"
-                               VerticalAlignment="Center"
-                               Text="{Binding PathToAllFiles}"
-                               Foreground="Gray"/>
-                </Border>
-                <Button x:Name="GetGeneralFileButton"
-                        Command="{Binding GetAllFilesCommand}"
-                        Grid.Column="1"
-                        Margin="5"
-                        BorderThickness="0"
-                        Content="Выбрать..."/>
-            </Grid>
+                            BorderThickness="0"
+                            Content="Выбрать..."/>
+                    </Grid>
+                    
+                    <TextBlock Margin= "5,5,5,0"
+                               Text="Настройки сохранения модели:"/>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Expander Header="Настройки выгрузки объемов"
-                          Margin="5">
-                    <StackPanel>
-                        <CheckBox x:Name="ExportToExcelCheckBox"
-                                  IsChecked="{Binding IsExportToExcel}"
-                                  Margin="5,10,5,5"
-                                  Content="Выгрузить в Excel."/>
-
-                        <CheckBox x:Name="ExportToJSONCheckBox"
-                                  IsChecked="{Binding IsExportToJSON}"
-                                  Margin="5"
-                                  Content="Выгрузить в Json."/>
-
-                        <CheckBox x:Name="ExportToAxaptaCheckBox"
-                                  IsChecked="{Binding IsExportToAxapta}"
-                                  Margin="5"
-                                  Content="Выгрузить в Axapta."/>
-
-                        <CheckBox x:Name="TestExportCheckBox"
-                                  Margin="5"
-                                  IsEnabled="{Binding IsExportToAxapta}"
-                                  IsChecked="{Binding IsTestExport}"
-                                  Content="Тестовая выгрузка(Axapta)."/>
-                    </StackPanel>
-                </Expander>
-
-                <Expander Grid.Column="1" 
-                          Margin="5"
-                          Header="Настройки сохранения модели">
                     <StackPanel>
                         <CheckBox x:Name="ExportToRVTCheckBox"
                                   IsChecked="{Binding IsSaveRVT}"
@@ -83,37 +54,123 @@
                                   Margin="5"
                                   Content="Сохранять обрабатываемые модели в NWC."/>
                     </StackPanel>
-                </Expander>
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="80"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="GetInformationButton"
+                            Grid.Column="0"
+                            Margin="5"
+                            BorderThickness="0"
+                            FontSize="11"
+                            Content="Инструкция"/>
+
+                    <Button x:Name="StartPreparationButton"
+                            Command="{Binding StartPreparationCommand}"
+                            Grid.Column="2"
+                            Margin="5"
+                            BorderThickness="0"
+                            Content="Начать"/>
+                    <ProgressBar Grid.Column="1"
+                             Name="ProgressBarStatusView" 
+                             Minimum="0" 
+                             Margin="5"
+                             Background="White"
+                             Foreground="#009BE1"
+                             BorderThickness="0"/>
+                </Grid>
             </Grid>
-        </StackPanel>
+        </TabItem>
+        <TabItem Header="Сбор и отправка данных">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <StackPanel>
+                    <TextBlock Margin= "5,5,5,0"
+                               Text="Выберите файлы Excel/CSV с данными:"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Height="25"
+                                Margin="5"
+                                BorderThickness="0.6"
+                                BorderBrush="Gray">
+                            <TextBlock x:Name="CSVFilesPath"
+                                       Margin="5"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding FileNamesCSVFiles}"
+                                       Foreground="Gray"/>
+                        </Border>
+                        <Button x:Name="GetCSVFilesButton"
+                                Command="{Binding GetCSVFilesCommand}"
+                                Grid.Column="1"
+                                Margin="5"
+                                BorderThickness="0"
+                                Content="Выбрать..."/>
+                    </Grid>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="80"/>
-            </Grid.ColumnDefinitions>
+                    <TextBlock Margin= "5,5,5,0"
+                                   Text="Настройки передачи данных:"/>
+                    <CheckBox x:Name="ExportToExcelCheckBox"
+                                      IsChecked="{Binding IsExportToExcel}"
+                                      Margin="5,10,5,5"
+                                      Content="Выгрузить в Excel."/>
 
-            <Button x:Name="GetInformationButton"
-                        Grid.Column="0"
-                        Margin="5"
-                        BorderThickness="0"
-                        FontSize="11"
-                        Content="Инструкция"/>
+                    <CheckBox x:Name="ExportToJSONCheckBox"
+                                      IsChecked="{Binding IsExportToJSON}"
+                                      Margin="5"
+                                      Content="Выгрузить в Json."/>
 
-            <Button x:Name="StartButton"
-                    Command="{Binding StartCommand}"
-                    Grid.Column="2"
-                    Margin="5"
-                    BorderThickness="0"
-                    Content="Начать"/>
-            <ProgressBar Grid.Column="1"
-                         Name="ProgressBarStatusView" 
-                         Minimum="0" 
-                         Margin="5"
-                         Background="White"
-                         Foreground="#009BE1"
-                         BorderThickness="0"/>
-        </Grid>
-    </Grid>
+                    <CheckBox x:Name="ExportToAxaptaCheckBox"
+                                      IsChecked="{Binding IsExportToAxapta}"
+                                      Margin="5"
+                                      Content="Выгрузить в Axapta."/>
+
+                    <CheckBox x:Name="TestExportCheckBox"
+                                      Margin="5"
+                                      IsEnabled="{Binding IsExportToAxapta}"
+                                      IsChecked="{Binding IsTestExport}"
+                                      Content="Тестовая выгрузка(Axapta)."/>
+                </StackPanel>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="80"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Margin="5"
+                            BorderThickness="0"
+                            FontSize="11"
+                            Content="Инструкция"/>
+
+                    <Button x:Name="StartSendButton"
+                            Command="{Binding StartSendCommand}"
+                            Grid.Column="2"
+                            Margin="5"
+                            BorderThickness="0"
+                            Content="Начать"/>
+                    <ProgressBar Grid.Column="1"
+                                    Name="ProgressBarSendStatusView" 
+                                    Minimum="0" 
+                                    Margin="5"
+                                    Background="White"
+                                    Foreground="#009BE1"
+                                    BorderThickness="0"/>
+                </Grid>
+            </Grid>
+        </TabItem>
+        
+
+    </TabControl>
 </Window>

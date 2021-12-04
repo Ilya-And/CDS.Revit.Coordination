@@ -32,6 +32,7 @@ namespace CDS.Revit.Coordination.Axapta.Views
             DataContext = new MainWindowViewModel();
         }
 
+
         //private void StartButton_Click(object sender, RoutedEventArgs e)
         //{
         //    AxaptaService axaptaService = new AxaptaService("https://tstaxapi.cds.spb.ru/", "nevis", "HPJoP/Y/33NPdTeITGd0WQ==");

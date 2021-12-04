@@ -17,12 +17,12 @@ namespace CDS.Revit.Coordination.Services.Axapta
         public static string LOGIN { get; set; } = "nevis";
         public static string PASSWORD { get; set; } = "HPJoP/Y/33NPdTeITGd0WQ==";
 
-        public AxaptaService(string host, string login, string password)
-        {
-            HOST = host;
-            LOGIN = login;
-            PASSWORD = password;
-        }
+        //public AxaptaService(string host, string login, string password)
+        //{
+        //    HOST = host;
+        //    LOGIN = login;
+        //    PASSWORD = password;
+        //}
 
         private T GetContentFromWebRequest<T>(HttpWebRequest http)
         {
