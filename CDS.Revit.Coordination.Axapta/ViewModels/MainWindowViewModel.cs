@@ -997,10 +997,60 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                      where column.ColumnName == "Этаж"
                                                      select column).FirstOrDefault();
 
+                            string projName = filePath.Split('\\')[0];
+
 
                             for (int i = 0; i <= tableWithValues[0].RowValues.Count - 1; i++)
                             {
+                                string classifier = classifierColumn.RowValues[i].Value;
+                                var works = worksFromAxapta[classifier];
+                                foreach(AxaptaWorkset axaptaWorkset in works)
+                                {
+                                    if(WorksListToSentValuesToAxapta.Count > 0)
+                                    {
 
+                                        foreach(WorkToSend workToSend in WorksListToSentValuesToAxapta)
+                                        {
+                                            if(workToSend.ProjName == projName &&
+                                               workToSend.SectionName == sectionNumberColumn.RowValues[i].Value &&
+                                               workToSend.FloorName == levelNumberColumn.RowValues[i].Value &&
+                                               workToSend.ProjWorkCodeId == axaptaWorkset.ProjWorkCodeId)
+                                            {
+                                                try
+                                                {
+                                                    workToSend.Volume = workToSend.Volume + Double.Parse((from column in tableWithValues
+                                                                                                          where column.ColumnName == workToSend.Units
+                                                                                                          select column).FirstOrDefault().RowValues[i].Value);
+                                                }
+                                                catch
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            else
+                                            {
+                                                WorkToSend newWorkToSend = new WorkToSend()
+                                                {
+                                                    ProjName = projName,
+                                                    SectionName = sectionNumberColumn.RowValues[i].Value,
+                                                    FloorName = levelNumberColumn.RowValues[i].Value,
+                                                    ProjWorkName = axaptaWorkset.Name,
+                                                    ProjWorkCodeId = axaptaWorkset.ProjWorkCodeId,
+                                                    Volume = Double.Parse((from column in tableWithValues
+                                                                           where column.ColumnName == axaptaWorkset.UnitId
+                                                                           select column).FirstOrDefault().RowValues[i].Value),
+                                                    Units = axaptaWorkset.UnitId
+                                                };
+
+                                                WorksListToSentValuesToAxapta.Add(newWorkToSend);
+                                            }
+                                        }
+
+                                    }
+
+                                    
+                                }
                             }
                         }
                     }
