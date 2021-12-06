@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CDS.Revit.Coordination.Axapta"
              WindowStartupLocation="CenterScreen"
-             MinHeight="300" MinWidth="500"
-             Height="300" Width="500">
+             MinHeight="350" MinWidth="500"
+             Height="350" Width="500">
     <TabControl>
         <TabItem Header="Подготовка данных">
             <Grid>
@@ -94,7 +94,7 @@
                 </Grid.RowDefinitions>
                 <StackPanel>
                     <TextBlock Margin= "5,5,5,0"
-                               Text="Выберите файлы Excel/CSV с данными:"/>
+                               Text="Выберите файлы Excel/CSV с данными из Revit:"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
@@ -117,7 +117,32 @@
                                 BorderThickness="0"
                                 Content="Выбрать..."/>
                     </Grid>
+                    
+                    <TextBlock Margin= "5,5,5,0"
+                               Text="Выберите файл соответствия единиц измерения для номенклатур:"/>
 
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Height="25"
+                                Margin="5"
+                                BorderThickness="0.6"
+                                BorderBrush="Gray">
+                            <TextBlock x:Name="SaveFilesPath"
+                                       Margin="5"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding PathToUnitsFile}"
+                                       Foreground="Gray"/>
+                        </Border>
+                        <Button x:Name="GetSavePathButton"
+                                Command="{Binding GetPathToUnitsFileCommand}"
+                                Grid.Column="1"
+                                Margin="5"
+                                BorderThickness="0"
+                                Content="Выбрать..."/>
+                    </Grid>
                     <TextBlock Margin= "5,5,5,0"
                                    Text="Настройки передачи данных:"/>
                     <CheckBox x:Name="ExportToExcelCheckBox"
@@ -140,6 +165,7 @@
                                       IsEnabled="{Binding IsExportToAxapta}"
                                       IsChecked="{Binding IsTestExport}"
                                       Content="Тестовая выгрузка(Axapta)."/>
+
                 </StackPanel>
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>

@@ -46,6 +46,7 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI">
       <HintPath>C:\Program Files\Autodesk\Revit 2022\RevitAPI.dll</HintPath>
       <Private>False</Private>
@@ -71,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Axapta\AxaptaService.cs" />
     <Compile Include="Axapta\Models\AccessAX.cs" />
+    <Compile Include="Axapta\Models\LinkBuilder.cs" />
     <Compile Include="Axapta\Models\AxaptaWorkset.cs" />
     <Compile Include="Axapta\Models\ElementClassifier.cs" />
     <Compile Include="Axapta\Models\SectionClassifier.cs" />

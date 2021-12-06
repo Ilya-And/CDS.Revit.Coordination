@@ -18,7 +18,7 @@ namespace CDS.Revit.Coordination.Services.Excel
 
             //Получаем значения первой строки
             var firstLineAsString = lines[0];
-            var firstLineAsList = firstLineAsString.Split(',').ToList();
+            var firstLineAsList = firstLineAsString.Split(';').ToList();
 
             //Получаем количество столбцов и строк
             var columnCount = firstLineAsList.Count;
@@ -37,7 +37,7 @@ namespace CDS.Revit.Coordination.Services.Excel
                     newRow.Id = n;
                     try
                     {
-                        newRow.Value = lines[n].Split(',')[i];
+                        newRow.Value = lines[n].Split(';')[i];
                     }
                     catch
                     {

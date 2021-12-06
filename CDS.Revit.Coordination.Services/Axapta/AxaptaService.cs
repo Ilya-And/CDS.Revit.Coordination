@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,17 +14,47 @@ namespace CDS.Revit.Coordination.Services.Axapta
 {
     public class AxaptaService
     {
-        public static string HOST { get; set; } = "https://tstaxapi.cds.spb.ru/";
-        public static string LOGIN { get; set; } = "nevis";
-        public static string PASSWORD { get; set; } = "HPJoP/Y/33NPdTeITGd0WQ==";
+        public string LOGIN { get; private set; } = "nevis";
+        public string PASSWORD { get; private set; } = "HPJoP/Y/33NPdTeITGd0WQ==";
 
-        //public AxaptaService(string host, string login, string password)
-        //{
-        //    HOST = host;
-        //    LOGIN = login;
-        //    PASSWORD = password;
-        //}
+        public AxaptaService()
+        {
 
+        }
+
+        public AxaptaService(string login, string password)
+        {
+            LOGIN = login;
+            PASSWORD = password;
+        }
+
+        private T GetDataByUrl<T>(string url, HttpMethod httpMethod)
+        {
+            using (var client = new WebClient())
+            {
+                AccessAX accessAX = GetAccessAX();
+                if (accessAX != null)
+                {
+                    //get json
+                    string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
+
+                    var baseAddress = url;
+
+                    var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
+                    http.Headers.Add(authorization);
+                    http.Method = httpMethod.Method.ToString();
+
+                    var responseValue = http.GetResponse();
+                    var stream = responseValue.GetResponseStream();
+                    var sr = new StreamReader(stream);
+                    var content = sr.ReadToEnd();
+
+                    return JsonConvert.DeserializeObject<T>(content);
+                }
+
+                throw new Exception("Token is null");
+            }
+        }
         private T GetContentFromWebRequest<T>(HttpWebRequest http)
         {
 
@@ -33,6 +64,7 @@ namespace CDS.Revit.Coordination.Services.Axapta
             var content = sr.ReadToEnd();
             return JsonConvert.DeserializeObject<T>(content);
         }
+
         private AccessAX GetAccessAX()
         {
             AccessAX result = new AccessAX();
@@ -45,7 +77,7 @@ namespace CDS.Revit.Coordination.Services.Axapta
                 values["username"] = LOGIN;
                 values["password"] = PASSWORD;
 
-                var response = client.UploadValues(HOST + "api/Account/token", values);
+                var response = client.UploadValues(LinkBuilder.Token, values);
 
                 string responseString = Encoding.Default.GetString(response);
 
@@ -62,28 +94,24 @@ namespace CDS.Revit.Coordination.Services.Axapta
         {
             ObservableCollection<ElementClassifier> result = new ObservableCollection<ElementClassifier>();
             //get data for access to axapta request
-            try
+           
+            using (var client = new WebClient())
             {
-                using (var client = new WebClient())
+                AccessAX accessAX = GetAccessAX();
+                if (accessAX != null)
                 {
-                    AccessAX accessAX = GetAccessAX();
-                    if (accessAX != null)
-                    {
-                        //get json
-                        string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
+                    //get json
+                    string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
 
-                        var baseAddress = HOST + "api/Navis/ClassifierCodeTable?type=" + category;
+                    var baseAddress = LinkBuilder.GetClassifierLink(category);
 
-                        var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
-                        http.Headers.Add(authorization);
-                        http.Method = "GET";
-                        result = GetContentFromWebRequest<ObservableCollection<ElementClassifier>>(http);
-                    }
+                    var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
+                    http.Headers.Add(authorization);
+                    http.Method = HttpMethod.Get.ToString();
+
+
+                    result = GetContentFromWebRequest<ObservableCollection<ElementClassifier>>(http);
                 }
-            }
-            catch
-            {
-                
             }
             return result;
         }
@@ -106,7 +134,7 @@ namespace CDS.Revit.Coordination.Services.Axapta
                         //get json
                         string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
 
-                        var baseAddress = HOST + "api/Navis/ClassifierCodeTableType";
+                        var baseAddress = LinkBuilder.ClassifierType;
 
                         var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
                         http.Headers.Add(authorization);
@@ -139,39 +167,13 @@ namespace CDS.Revit.Coordination.Services.Axapta
                     //get json
                     string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
 
-                    var baseAddress = HOST + "api/Navis/ProjWorkTable";
+                    var baseAddress = LinkBuilder.ProjWorkTable;
 
                     var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
                     http.Headers.Add(authorization);
                     http.Method = "GET";
                     result = GetContentFromWebRequest<ObservableCollection<AxaptaWorkset>>(http);
                 }
-                //var values = new NameValueCollection();
-                //values["grant_type"] = "password";
-                //values["username"] = LOGIN;
-                //values["password"] = PASSWORD;
-
-                //var response = client.UploadValues(HOST + "api/Account/token", values);
-
-                //string responseString = Encoding.Default.GetString(response);
-
-                //AccessAX accessAX = JsonConvert.DeserializeObject<AccessAX>(responseString);
-
-                //get json
-                //string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
-
-                //HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(HOST + "api/Navis/ProjWorkTable");
-
-                //req.Headers.Add(authorization);
-
-                //HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-
-                //using (StreamReader stream = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
-                //{
-                //    responseString = stream.ReadToEnd();
-                //}
-                //result = JsonConvert.DeserializeObject<ObservableCollection<AxaptaWorkset>>(responseString);
-                //result = GetAxaptaWorksetByGroups(result);
             }
             return result;
         }
@@ -239,7 +241,7 @@ namespace CDS.Revit.Coordination.Services.Axapta
 
         /*Метод отправки данных в Axapta
          */
-        public string SendToAxapta<T>(List<T> worksToSend)
+        public string SendToAxapta<T>(List<T> worksToSend, SenderType type)
         {
             string jsonStr = JsonConvert.SerializeObject(worksToSend);
             string newStr = UnidecodeSharpFork.Unidecoder.Unidecode(jsonStr);
@@ -254,7 +256,9 @@ namespace CDS.Revit.Coordination.Services.Axapta
                 {
                     string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
 
-                    var baseAddress = HOST + "api/Navis/AddNavisData";
+                    var baseAddress = String.Empty;
+                    if (type == SenderType.Work) baseAddress = LinkBuilder.Work;
+                    if (type == SenderType.Material) baseAddress = LinkBuilder.Material;
 
                     var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
                     http.Headers.Add(authorization);

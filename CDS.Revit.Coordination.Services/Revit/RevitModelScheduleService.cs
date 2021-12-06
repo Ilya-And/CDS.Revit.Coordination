@@ -18,13 +18,19 @@ namespace CDS.Revit.Coordination.Services.Revit
 
         /*Метод экспорта спецификации в формат .csv
          */
-        public void ExportToCSV(ViewSchedule viewSchedule, string filePath)
+        public void ExportToCSV(ViewSchedule viewSchedule, string filePath, string projName, Document doc)
         {
             string viewName = MakeValidFileName(viewSchedule.Name);
             ViewScheduleExportOptions exportOptions = new ViewScheduleExportOptions();
+
+            string docName = doc.PathName.Split('.')[0];
+            int index = docName.LastIndexOf('_');
+            docName = docName.Substring(0, index);
+
+
             if (!viewSchedule.Name.Contains("<"))
             {
-                viewSchedule.Export(filePath, viewName + ".csv", exportOptions);
+                viewSchedule.Export(filePath, $"{projName}_{docName}_{viewName}.csv", exportOptions);
             }
         }
     }
