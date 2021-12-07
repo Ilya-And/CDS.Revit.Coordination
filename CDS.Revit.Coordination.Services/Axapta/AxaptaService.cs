@@ -196,7 +196,7 @@ namespace CDS.Revit.Coordination.Services.Axapta
 
             using (var client = new WebClient())
             {
-                AccessAX accessAX = GetAccessAX(SenderType.Work);
+                AccessAX accessAX = GetAccessAX(type);
                 if (accessAX != null)
                 {
                     string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
