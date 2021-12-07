@@ -11,7 +11,7 @@ namespace CDS.Revit.Coordination.Services.Axapta
         public static string Work => HOST + "api/Navis/AddNavisData";
         public static string Material => HOST + "api/Navis/AddNavisDataItem";
         public static string Token => HOST + "api/Account/token";
-        public static string Classifier => HOST + "api/Navis/ClassifierCodeTable";
+        private static string Classifier => HOST + "api/Navis/ClassifierCodeTable";
         public static string ClassifierType => HOST + "api/Navis/ClassifierCodeTableType";
         public static string ProjWorkTable => HOST + "api/Navis/ProjWorkTable";
 

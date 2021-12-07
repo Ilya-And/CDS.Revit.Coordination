@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Axapta\AxaptaService.cs" />
     <Compile Include="Axapta\Models\AccessAX.cs" />
+    <Compile Include="Axapta\Models\AxaptaLoginPassword.cs" />
     <Compile Include="Axapta\Models\LinkBuilder.cs" />
     <Compile Include="Axapta\Models\AxaptaWorkset.cs" />
     <Compile Include="Axapta\Models\ElementClassifier.cs" />

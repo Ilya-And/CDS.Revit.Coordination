@@ -14,25 +14,19 @@ namespace CDS.Revit.Coordination.Services.Axapta
 {
     public class AxaptaService
     {
-        public string LOGIN { get; private set; } = "nevis";
-        public string PASSWORD { get; private set; } = "HPJoP/Y/33NPdTeITGd0WQ==";
-
-        public AxaptaService()
-        {
-
-        }
-
-        public AxaptaService(string login, string password)
-        {
-            LOGIN = login;
-            PASSWORD = password;
-        }
-
-        private T GetDataByUrl<T>(string url, HttpMethod httpMethod)
+        /// <summary>
+        /// Универсальный метод получения данных из Axapta
+        /// </summary>
+        /// <typeparam name="T">Тип возвращаемых данных</typeparam>
+        /// <param name="senderType">Тип категории отправки</param>
+        /// <param name="url">Адрес</param>
+        /// <param name="httpMethod"></param>
+        /// <returns></returns>
+        private T GetDataByUrl<T>(SenderType senderType, string url, HttpMethod httpMethod)
         {
             using (var client = new WebClient())
             {
-                AccessAX accessAX = GetAccessAX();
+                AccessAX accessAX = GetAccessAX(senderType);
                 if (accessAX != null)
                 {
                     //get json
@@ -65,8 +59,14 @@ namespace CDS.Revit.Coordination.Services.Axapta
             return JsonConvert.DeserializeObject<T>(content);
         }
 
-        private AccessAX GetAccessAX()
+        /// <summary>
+        /// Получение токена
+        /// </summary>
+        /// <param name="senderType"></param>
+        /// <returns></returns>
+        private AccessAX GetAccessAX(SenderType senderType)
         {
+
             AccessAX result = new AccessAX();
             
             using (var client = new WebClient())
@@ -74,8 +74,8 @@ namespace CDS.Revit.Coordination.Services.Axapta
 
                 var values = new NameValueCollection();
                 values["grant_type"] = "password";
-                values["username"] = LOGIN;
-                values["password"] = PASSWORD;
+                values["username"] = senderType == SenderType.Material ? AxaptaLoginPassword.TokenMaterialLogin : AxaptaLoginPassword.TokenWorkLogin;
+                values["password"] = senderType == SenderType.Material ? AxaptaLoginPassword.TokenMaterialPassword : AxaptaLoginPassword.TokenWorkPassword;
 
                 var response = client.UploadValues(LinkBuilder.Token, values);
 
@@ -87,65 +87,28 @@ namespace CDS.Revit.Coordination.Services.Axapta
             return result;
         }
 
-        /*Метод получения всех работ в связке с классификатором из Axapta в формате:    id - классификатор
-                                                                                        Name - наименование
-                                                                                        WorkCodeID - список работ*/
+        /// <summary>
+        /// Метод получения всех работ в связке с классификатором из Axapta в формате:    id - классификатор
+        ///                                                                               Name - наименование
+        ///                                                                               WorkCodeID - список работ
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
         private ObservableCollection<ElementClassifier> GetElementClassifiers(string category)
         {
-            ObservableCollection<ElementClassifier> result = new ObservableCollection<ElementClassifier>();
-            //get data for access to axapta request
+            ObservableCollection<ElementClassifier> result = GetDataByUrl<ObservableCollection<ElementClassifier>>(SenderType.Work, LinkBuilder.GetClassifierLink(category), HttpMethod.Get);
            
-            using (var client = new WebClient())
-            {
-                AccessAX accessAX = GetAccessAX();
-                if (accessAX != null)
-                {
-                    //get json
-                    string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
-
-                    var baseAddress = LinkBuilder.GetClassifierLink(category);
-
-                    var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
-                    http.Headers.Add(authorization);
-                    http.Method = HttpMethod.Get.ToString();
-
-
-                    result = GetContentFromWebRequest<ObservableCollection<ElementClassifier>>(http);
-                }
-            }
             return result;
         }
 
-        /*Метод получения всех разделов работ из Axapta: АР
-                                                         КЖ
-                                                         ОВиВК
-                                                         ЭМ)*/
+        /// <summary>
+        /// Метод получения всех разделов работ из Axapta: АР, КЖ, ОВиВК, ЭМ
+        /// </summary>
+        /// <returns></returns>
         private List<SectionClassifier> GetAllClassifiersSections()
         {
-            List<SectionClassifier> result = new List<SectionClassifier>();
-            //get data foa access to axapta request
-            try
-            {
-                using (var client = new WebClient())
-                {
-                    AccessAX accessAX = GetAccessAX();
-                    if (accessAX != null)
-                    {
-                        //get json
-                        string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
+            List<SectionClassifier> result = GetDataByUrl<List<SectionClassifier>>(SenderType.Work, LinkBuilder.ClassifierType, HttpMethod.Get);
 
-                        var baseAddress = LinkBuilder.ClassifierType;
-
-                        var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
-                        http.Headers.Add(authorization);
-                        http.Method = "GET";
-                        result = GetContentFromWebRequest<List<SectionClassifier>>(http);
-                    }
-                }
-            }
-            catch
-            {
-            }
             return result;
         }
 
@@ -156,25 +119,7 @@ namespace CDS.Revit.Coordination.Services.Axapta
                                                             UnitId - единицы измерения(м2, м3 и т.д.)*/
         private ObservableCollection<AxaptaWorkset> GetAllAxaptaWorksetsMethod()
         {
-            var result = new ObservableCollection<AxaptaWorkset>();
-            //get data foa access to axapta request
-            
-            using (var client = new WebClient())
-            {
-                AccessAX accessAX = GetAccessAX();
-                if (accessAX != null)
-                {
-                    //get json
-                    string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;
-
-                    var baseAddress = LinkBuilder.ProjWorkTable;
-
-                    var http = (HttpWebRequest)WebRequest.Create(new Uri(baseAddress));
-                    http.Headers.Add(authorization);
-                    http.Method = "GET";
-                    result = GetContentFromWebRequest<ObservableCollection<AxaptaWorkset>>(http);
-                }
-            }
+            ObservableCollection<AxaptaWorkset> result = GetDataByUrl<ObservableCollection<AxaptaWorkset>>(SenderType.Work, LinkBuilder.ProjWorkTable, HttpMethod.Get);
             return result;
         }
 
@@ -241,7 +186,7 @@ namespace CDS.Revit.Coordination.Services.Axapta
 
         /*Метод отправки данных в Axapta
          */
-        public string SendToAxapta<T>(List<T> worksToSend, SenderType type)
+        public string SendToAxapta<T>(ObservableCollection<T> worksToSend, SenderType type)
         {
             string jsonStr = JsonConvert.SerializeObject(worksToSend);
             string newStr = UnidecodeSharpFork.Unidecoder.Unidecode(jsonStr);
@@ -251,7 +196,7 @@ namespace CDS.Revit.Coordination.Services.Axapta
 
             using (var client = new WebClient())
             {
-                AccessAX accessAX = GetAccessAX();
+                AccessAX accessAX = GetAccessAX(SenderType.Work);
                 if (accessAX != null)
                 {
                     string authorization = "Authorization:" + accessAX.token_type + " " + accessAX.access_token;

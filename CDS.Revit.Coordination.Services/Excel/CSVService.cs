@@ -37,7 +37,7 @@ namespace CDS.Revit.Coordination.Services.Excel
                     newRow.Id = n;
                     try
                     {
-                        newRow.Value = lines[n].Split(';')[i];
+                        newRow.Value = lines[n].Split(';')[i].Replace(',', '.');
                     }
                     catch
                     {
