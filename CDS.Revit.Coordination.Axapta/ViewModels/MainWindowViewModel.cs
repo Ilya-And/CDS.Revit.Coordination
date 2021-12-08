@@ -394,8 +394,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         where column.ColumnName == "Значение_2"
                                                                         select column).FirstOrDefault();
 
-                                        ColumnValues parameter3 = (from column in GeneralTable
-                                                                    where column.ColumnName == "Параметр_3"
+                                        ColumnValues parameter3 = (from column in classTable
+                                                                   where column.ColumnName == "Параметр_3"
                                                                     select column).FirstOrDefault();
 
                                         ColumnValues parameter3Condition = (from column in classTable
@@ -562,7 +562,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     parameterValue4FromElement = asPart.LookupParameter(parameter4FromTable)?.AsString();
                                                                     parameterValue5FromElement = asPart.LookupParameter(parameter5FromTable)?.AsString();
 
-
                                                                     isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
                                                                     isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
                                                                     isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
@@ -575,6 +574,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         isFouthParameterValueMatch == true &&
                                                                         isFifthParameterValueMatch == true)
                                                                     {
+                                                                        classifierForSet = classifierLineFromTable;
+
                                                                         if (categoryNameHost == "Стены")
                                                                         {
                                                                             var hostElementId = asPart.GetSourceElementIds().ToList()[0].HostElementId;
@@ -590,7 +591,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                                 classifierForSet = classifierOtherFromTable;
                                                                             }
                                                                         }
-                                                                        else if (categoryNameHost == "Выступающие профили")
+                                                                        if (categoryNameHost == "Выступающие профили")
                                                                         {
                                                                             var hostElementId = asPart.GetSourceElementIds().ToList()[0].HostElementId;
                                                                             var hostWallSweepElement = doc.GetElement(hostElementId) as WallSweep;
@@ -612,10 +613,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                                     }
                                                                                 }
                                                                             }
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            classifierForSet = classifierLineFromTable;
                                                                         }
                                                                         asPart.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
 
@@ -838,8 +835,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                             }
                                             catch (Exception ex)
                                             {
-                                                continue;
-                                                //MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + element);
+                                                //continue;
+                                                MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + element);
                                             }
                                         }
 
@@ -1180,15 +1177,15 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                     }
                     if (IsExportToAxapta == true)
                     {
-                        try
-                        {
-                            axaptaService.SendToAxapta(WorksListToSentValuesToAxapta, SenderType.Work);
-                            MessageBox.Show("Работы выгружены.");
-                        }
-                        catch(Exception ex)
-                        {
-                            MessageBox.Show($"Работы не выгружены.\n{ex.Message}\n{ex.StackTrace}");
-                        }
+                        //try
+                        //{
+                        //    axaptaService.SendToAxapta(WorksListToSentValuesToAxapta, SenderType.Work);
+                        //    MessageBox.Show("Работы выгружены.");
+                        //}
+                        //catch(Exception ex)
+                        //{
+                        //    MessageBox.Show($"Работы не выгружены.\n{ex.Message}\n{ex.StackTrace}");
+                        //}
 
                         try
                         {
@@ -1325,27 +1322,27 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             openFileDialog.ShowDialog();
             PathToAllFiles = openFileDialog.FileName;
         }
-        private static bool IsParameterValueMatch(string parameter1ConditionFromTable, string parameterValue1FromTable, string parameterValue1FromElement)
+        private static bool IsParameterValueMatch(string parameterConditionFromTable, string parameterValueFromTable, string parameterValueFromElement)
         {
             bool isParameterValueMatch = false;
 
-            if (parameter1ConditionFromTable == "Равно")
+            if (parameterConditionFromTable == "Равно")
             {
-                isParameterValueMatch = parameterValue1FromElement == parameterValue1FromTable;
+                isParameterValueMatch = parameterValueFromElement == parameterValueFromTable;
             }
-            else if (parameter1ConditionFromTable == "НеРавно")
+            if (parameterConditionFromTable == "НеРавно")
             {
-                isParameterValueMatch = parameterValue1FromElement == parameterValue1FromTable;
+                isParameterValueMatch = parameterValueFromElement != parameterValueFromTable;
             }
-            else if (parameter1ConditionFromTable == "Содержит")
+            if (parameterConditionFromTable == "Содержит")
             {
-                isParameterValueMatch = parameterValue1FromElement.Contains(parameterValue1FromTable);
+                isParameterValueMatch = parameterValueFromElement.Contains(parameterValueFromTable);
             }
-            else if (parameter1ConditionFromTable == "НеСодержит")
+            if (parameterConditionFromTable == "НеСодержит")
             {
-                isParameterValueMatch = !parameterValue1FromElement.Contains(parameterValue1FromTable);
+                isParameterValueMatch = !parameterValueFromElement.Contains(parameterValueFromTable);
             }
-            else
+            if(parameterConditionFromTable == "" || parameterValueFromTable == "")
             {
                 isParameterValueMatch = true;
             }
