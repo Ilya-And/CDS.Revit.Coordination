@@ -11,6 +11,7 @@ using System.Windows;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
+using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.Exceptions;
 using CDS.Revit.Coordination.Axapta.Models;
 using CDS.Revit.Coordination.Services.Axapta;
@@ -794,6 +795,102 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
                                                                     break;
 
+                                                                case "Несущая арматура":
+                                                                    Rebar asRebar = element as Rebar;
+                                                                    RebarInSystem asRebarInSystem = element as RebarInSystem;
+                                                                    FamilyInstance asFamInstance = element as FamilyInstance;
+
+                                                                    if (asRebar != null)
+                                                                    {
+                                                                        var parameterClassifierRebarForSet = asRebar.LookupParameter("ЦДС_Классификатор");
+                                                                        var levelRebarParam = asRebar.LookupParameter("ADSK_Этаж");
+                                                                        
+                                                                        if (parameterClassifierRebarForSet != null)
+                                                                        {
+                                                                            var host = doc.GetElement(asRebar.GetHostId());
+
+                                                                            var hostAsWall = host as Wall;
+                                                                            var hostAsFloor = host as Autodesk.Revit.DB.Floor;
+                                                                            var hostAsInstance = host as FamilyInstance;
+
+                                                                            if (hostAsWall != null) 
+                                                                            {
+                                                                                var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор").AsString();
+                                                                                var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор").AsValueString();
+
+                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
+                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+
+
+                                                                            }
+                                                                                
+                                                                        }
+                                                                    }
+                                                                    //else if (asRebarInSystem != null)
+                                                                    //{
+                                                                    //    asRebarInSystem.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
+                                                                    //    var levelRebarInSystemParam = asRebarInSystem.LookupParameter("ADSK_Этаж");
+                                                                    //    try
+                                                                    //    {
+                                                                    //        levelIdRebar = _doc.GetElement(asRebarInSystem.GetHostId()).LevelId;
+                                                                    //    }
+                                                                    //    catch
+                                                                    //    {
+                                                                    //        levelIdRebar = _doc.GetElement(asRebarInSystem.GetHostId()).get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId();
+                                                                    //    }
+                                                                    //    if (levelRebarInSystemParam != null)
+                                                                    //    {
+                                                                    //        levelRebarInSystemParam.Set(GetLevelNumber(element, levelIdRebar, levelRebarInSystemParam));
+                                                                    //        _countElements++;
+                                                                    //    }
+                                                                    //}
+
+                                                                    //else if (asFamilyInstance != null)
+                                                                    //{
+                                                                    //    asFamilyInstance.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
+                                                                    //    var levelFamilyInstanceParam = asFamilyInstance.LookupParameter("ADSK_Этаж");
+                                                                    //    var hostForInstance = asFamilyInstance.Host;
+                                                                    //    if (hostForInstance == null)
+                                                                    //    {
+                                                                    //        var superComponent = asFamilyInstance.SuperComponent as FamilyInstance;
+                                                                    //        hostForInstance = superComponent.Host;
+                                                                    //    }
+                                                                    //    var hostAsFloor = hostForInstance as Floor;
+                                                                    //    var hostAsWall = hostForInstance as Wall;
+                                                                    //    var hostAsInstance = hostForInstance as FamilyInstance;
+                                                                    //    var hostAsStairs = hostForInstance as Stairs;
+                                                                    //    var hostAsLevel = hostForInstance as Level;
+                                                                    //    if (hostAsFloor != null)
+                                                                    //    {
+                                                                    //        levelIdRebar = hostAsFloor.LevelId;
+                                                                    //    }
+                                                                    //    else if (hostAsWall != null)
+                                                                    //    {
+                                                                    //        levelIdRebar = hostAsWall.LevelId;
+                                                                    //    }
+                                                                    //    else if (hostAsInstance != null)
+                                                                    //    {
+                                                                    //        levelIdRebar = hostAsInstance.LevelId;
+                                                                    //    }
+                                                                    //    else if (hostAsStairs != null)
+                                                                    //    {
+                                                                    //        levelIdRebar = hostAsStairs.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM).AsElementId();
+                                                                    //    }
+                                                                    //    else if (hostAsLevel != null)
+                                                                    //    {
+                                                                    //        levelIdRebar = hostAsLevel.Id;
+                                                                    //    }
+
+                                                                    //    if (levelFamilyInstanceParam != null)
+                                                                    //    {
+                                                                    //        levelFamilyInstanceParam.Set(GetLevelNumber(element, levelIdRebar, levelFamilyInstanceParam));
+                                                                    //        _countElements++;
+                                                                    //    }
+                                                                    //}
+
+
+                                                                    break;
+
                                                                 default:
                                                                     try
                                                                     {
@@ -902,13 +999,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                         tr.Commit();
                                     }
 
-                                    //using (Transaction tr = new Transaction(doc))
-                                    //{
-                                    //    tr.Start("");
-
-                                    //    tr.Commit();
-                                    //}
-
                                     revitModelScheduleService.ExportToCSV(doc, PathToSaveColumn.RowValues[i].Value, ProjectNameColumn.RowValues[i].Value);
 
                                     if (IsSaveNWC == true)
@@ -939,60 +1029,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                     {
                         MessageBox.Show("Укажите путь до файла Excel!!!");
                     }
-
-                    //int allElementsByAllViews = 0;
-                    //foreach (ElementId viewId in selectedViews)
-                    //{
-                    //    allElementsByAllViews += new FilteredElementCollector(doc, viewId).WhereElementIsNotElementType().ToElements().Count;
-                    //}
-                    //using (Transaction tr = new Transaction(doc))
-                    //{
-                    //    tr.Start("SetLevelAndSection");
-                    //    foreach (ElementId view3DId in selectedViews)
-                    //    {
-                    //        var view3D = _doc.GetElement(view3DId) as View3D;
-                    //        string sectionNumber = view3D.Name;
-                    //        progressBarView.NameOfView.Text = $"Обработка вида - \"{sectionNumber}\"";
-
-
-                    //        var allElementsByView = new FilteredElementCollector(doc, view3DId).WhereElementIsNotElementType().ToElements();
-                    //        progressBarView.ProgressBarStatusView.Maximum = allElementsByAllViews;
-                    //        progressBarView.ProgressBarStatusView.Value = 1;
-
-                    //        List<Element> allElements = new List<Element>();
-
-                    //        foreach (Element element in allElementsByView)
-                    //        {
-                    //            if (element != null)
-                    //            {
-                    //                try
-                    //                {
-                    //                    if (element.Category != null)
-                    //                    {
-                    //                        SetParametersValuesToElement(element, levelsService, sectionNumber);
-                    //                    }
-                    //                }
-                    //                catch (InvalidObjectException)
-                    //                {
-                    //                    continue;
-                    //                }
-                    //            }
-                    //            progressBarView.CountOfElement.Text = $"Обработано {_countElements} из {allElementsByAllViews} элементов.";
-                    //            progressBarView.ProgressBarStatusView.Dispatcher.Invoke(new ProgressBarDelegate(progressBarView.UpdateProgress), System.Windows.Threading.DispatcherPriority.Background);
-                    //        }
-                    //    }
-                    //    tr.Commit();
-                    //}
-
-                    //progressBarView.Close();
-                    //if (_countElements != 0)
-                    //{
-                    //    MessageBox.Show(resultMessage);
-                    //}
-                    //else
-                    //{
-                    //    MessageBox.Show($"Обработано элементов - {_countElements}");
-                    //}
                 }
                 );
             }
@@ -1005,252 +1041,272 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
             {
                 return _startSendCommand ?? new RelayCommand(obj =>
                 {
-                CSVService csvService = new CSVService();
-                ExcelService excelService = new ExcelService();
-                AxaptaService axaptaService = new AxaptaService();
+                    CSVService csvService = new CSVService();
+                    ExcelService excelService = new ExcelService();
+                    AxaptaService axaptaService = new AxaptaService();
 
-                bool isContinue = true;
-                Dictionary<string, List<AxaptaWorkset>> worksFromAxapta = new Dictionary<string, List<AxaptaWorkset>>();
+                    bool isContinue = true;
+                    Dictionary<string, List<AxaptaWorkset>> worksFromAxapta = new Dictionary<string, List<AxaptaWorkset>>();
 
-                try
-                {
-                    worksFromAxapta = axaptaService.GetWorksFromAxapta();
-                }
-                catch (Exception ex)
-                {
-                    isContinue = false;
-                    MessageBox.Show(ex.StackTrace);
-                    MessageBox.Show("Невозможно продолжить! Нет связи с Axapta.");
-                }
-
-                List<ColumnValues> tableWithValues = new List<ColumnValues>();
-
-                if (isContinue == true)
-                {
-                    foreach (string filePath in PathToCSVFiles)
+                    try
                     {
-                        if (filePath.Contains(".csv"))
+                        worksFromAxapta = axaptaService.GetWorksFromAxapta();
+                    }
+                    catch (Exception ex)
+                    {
+                        isContinue = false;
+                        MessageBox.Show(ex.StackTrace);
+                        MessageBox.Show("Невозможно продолжить! Нет связи с Axapta.");
+                    }
+
+                    List<ColumnValues> tableWithValues = new List<ColumnValues>();
+
+                    if (isContinue == true)
+                    {
+                        foreach (string filePath in PathToCSVFiles)
                         {
-                            tableWithValues = csvService.GetValuesFromCSVTable(filePath);
-                        }
-                        if (filePath.Contains(".xlsx"))
-                        {
-                            tableWithValues = excelService.GetValuesFromExcelTable(filePath);
-                        }
-
-                        var classifierColumn = (from column in tableWithValues
-                                                where column.ColumnName == "ЦДС_Классификатор"
-                                                select column).FirstOrDefault();
-                        var materialColumn = (from column in tableWithValues
-                                              where column.ColumnName == "ЦДС_Классификатор_Материалов"
-                                              select column).FirstOrDefault();
-                        var sectionNumberColumn = (from column in tableWithValues
-                                                   where column.ColumnName == "ADSK_Номер секции"
-                                                   select column).FirstOrDefault();
-                        var levelNumberColumn = (from column in tableWithValues
-                                                 where column.ColumnName == "ADSK_Этаж"
-                                                 select column).FirstOrDefault();
-
-                        int lastElementNumberFromFilePath = filePath.Split('\\').ToList().Count - 1;
-                        string nameFromFilePath = filePath.Split('\\')[lastElementNumberFromFilePath];
-                        string projName = nameFromFilePath.Split('_')[0];
-
-                        var unitsMaterialTable = excelService.GetValuesFromExcelTable(PathToUnitsFile);
-                        var dictionaryUnits = new Dictionary<string, string>();
-
-                        for (int n = 0; n <= unitsMaterialTable[0].RowValues.Count - 1; n++)
-                        {
-                            if (n == 0)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                dictionaryUnits[unitsMaterialTable[0].RowValues[n].Value] = unitsMaterialTable[1].RowValues[n].Value;
-                            }
-                        }
-
-                        for (int i = 0; i <= tableWithValues[0].RowValues.Count - 1; i++)
-                        {
-                            string classifier = classifierColumn.RowValues[i].Value;
-
-                            List<AxaptaWorkset> works = new List<AxaptaWorkset>();
-
                             try
                             {
-                                works = worksFromAxapta[classifier];
+                                if (filePath.Contains(".csv"))
+                                {
+                                    tableWithValues = csvService.GetValuesFromCSVTable(filePath);
+                                }
+                                if (filePath.Contains(".xlsx"))
+                                {
+                                    tableWithValues = excelService.GetValuesFromExcelTable(filePath);
+                                }
+
                             }
                             catch
                             {
                                 continue;
                             }
 
-                            if (works.Count > 0)
+                            var classifierColumn = (from column in tableWithValues
+                                                    where column.ColumnName == "ЦДС_Классификатор"
+                                                    select column).FirstOrDefault();
+                            var materialColumn = (from column in tableWithValues
+                                                  where column.ColumnName == "ЦДС_Классификатор_Материалов"
+                                                  select column).FirstOrDefault();
+                            var sectionNumberColumn = (from column in tableWithValues
+                                                       where column.ColumnName == "ADSK_Номер секции"
+                                                       select column).FirstOrDefault();
+                            var levelNumberColumn = (from column in tableWithValues
+                                                     where column.ColumnName == "ADSK_Этаж"
+                                                     select column).FirstOrDefault();
+
+                            int lastElementNumberFromFilePath = filePath.Split('\\').ToList().Count - 1;
+                            string nameFromFilePath = filePath.Split('\\')[lastElementNumberFromFilePath];
+                            string projName = nameFromFilePath.Split('_')[0];
+
+                            var unitsMaterialTable = excelService.GetValuesFromExcelTable(PathToUnitsFile);
+                            var dictionaryUnits = new Dictionary<string, string>();
+
+                            for (int n = 0; n <= unitsMaterialTable[0].RowValues.Count - 1; n++)
                             {
-                                foreach (AxaptaWorkset axaptaWorkset in works)
+                                if (n == 0)
                                 {
-                                    if (WorksListToSentValuesToAxapta.Count > 0)
+                                    continue;
+                                }
+                                else
+                                {
+                                    dictionaryUnits[unitsMaterialTable[0].RowValues[n].Value] = unitsMaterialTable[1].RowValues[n].Value;
+                                }
+                            }
+
+                            if(tableWithValues[0].RowValues.Count > 0)
+                            {
+                                for (int i = 0; i <= tableWithValues[0].RowValues.Count - 1; i++)
+                                {
+                                    string classifier = "";
+                                    try
                                     {
-                                            int indexEqualElement = GetEqualWorkElement(WorksListToSentValuesToAxapta, projName, sectionNumberColumn.RowValues[i].Value, levelNumberColumn.RowValues[i].Value, axaptaWorkset.ProjWorkCodeId);
+                                        classifier = classifierColumn.RowValues[i].Value;
+                               
+                                        List<AxaptaWorkset> works = new List<AxaptaWorkset>();
 
-                                            if(indexEqualElement != -1)
-                                            {
-                                                var workToSend = WorksListToSentValuesToAxapta[indexEqualElement];
-                                                workToSend.Volume += Double.Parse((from column in tableWithValues
-                                                                                   where column.ColumnName == workToSend.Units
-                                                                                   select column).FirstOrDefault().RowValues[i].Value);
-                                            }
+                                        works = worksFromAxapta[classifier];
 
-                                            else
+                                        if (works.Count > 0)
+                                        {
+                                            foreach (AxaptaWorkset axaptaWorkset in works)
                                             {
-                                                WorkToSend newWorkToSend = new WorkToSend()
+                                                if (WorksListToSentValuesToAxapta.Count > 0)
                                                 {
-                                                    ProjName = projName,
-                                                    SectionName = sectionNumberColumn.RowValues[i].Value,
-                                                    FloorName = levelNumberColumn.RowValues[i].Value,
-                                                    ProjWorkName = axaptaWorkset.Name,
-                                                    ProjWorkCodeId = axaptaWorkset.ProjWorkCodeId,
-                                                    Volume = Double.Parse((from column in tableWithValues
-                                                                           where column.ColumnName == axaptaWorkset.UnitId
-                                                                           select column).FirstOrDefault().RowValues[i].Value),
-                                                    Units = axaptaWorkset.UnitId
-                                                };
+                                                    int indexEqualElement = GetEqualWorkElement(WorksListToSentValuesToAxapta, projName, sectionNumberColumn.RowValues[i].Value, levelNumberColumn.RowValues[i].Value, axaptaWorkset.ProjWorkCodeId);
 
-                                                WorksListToSentValuesToAxapta.Add(newWorkToSend);
+                                                    if(indexEqualElement != -1)
+                                                    {
+                                                        var workToSend = WorksListToSentValuesToAxapta[indexEqualElement];
+                                                        workToSend.Volume += Double.Parse((from column in tableWithValues
+                                                                                            where column.ColumnName == workToSend.Units
+                                                                                            select column).FirstOrDefault().RowValues[i].Value);
+                                                    }
+
+                                                    else
+                                                    {
+                                                        WorkToSend newWorkToSend = new WorkToSend()
+                                                        {
+                                                            ProjName = projName,
+                                                            SectionName = sectionNumberColumn.RowValues[i].Value,
+                                                            FloorName = levelNumberColumn.RowValues[i].Value,
+                                                            ProjWorkName = axaptaWorkset.Name,
+                                                            ProjWorkCodeId = axaptaWorkset.ProjWorkCodeId,
+                                                            Volume = Double.Parse((from column in tableWithValues
+                                                                                    where column.ColumnName == axaptaWorkset.UnitId
+                                                                                    select column).FirstOrDefault().RowValues[i].Value),
+                                                            Units = axaptaWorkset.UnitId
+                                                        };
+
+                                                        WorksListToSentValuesToAxapta.Add(newWorkToSend);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    WorkToSend newWorkToSend = new WorkToSend()
+                                                    {
+                                                        ProjName = projName,
+                                                        SectionName = sectionNumberColumn.RowValues[i].Value,
+                                                        FloorName = levelNumberColumn.RowValues[i].Value,
+                                                        ProjWorkName = axaptaWorkset.Name,
+                                                        ProjWorkCodeId = axaptaWorkset.ProjWorkCodeId,
+                                                        Volume = Double.Parse((from column in tableWithValues
+                                                                               where column.ColumnName == axaptaWorkset.UnitId
+                                                                               select column).FirstOrDefault().RowValues[i].Value),
+                                                        Units = axaptaWorkset.UnitId
+                                                    };
+
+                                                    WorksListToSentValuesToAxapta.Add(newWorkToSend);
+                                                }
+
+                                                string materialClassifierValue = "";
+
+                                                if (materialColumn.RowValues[i].Value.Contains("//"))
+                                                {
+                                                    materialClassifierValue = materialColumn.RowValues[i].Value.Split('/')[2];
+                                                }
+                                                if (materialColumn.RowValues[i].Value.Contains('<'))
+                                                {
+                                                    materialClassifierValue = materialColumn.RowValues[i].Value.Split('<')[0];
+                                                }
+                                                if(materialColumn.RowValues[i].Value.Split('_')[0] == "N")
+                                                {
+                                                    materialClassifierValue = materialColumn.RowValues[i].Value;
+                                                }
+
+                                                if (MaterialsListToSentValuesToAxapta.Count > 0)
+                                                {
+                                                    int indexEqualElement = GetEqualMaterialElement(MaterialsListToSentValuesToAxapta, projName, sectionNumberColumn.RowValues[i].Value, levelNumberColumn.RowValues[i].Value, axaptaWorkset.ProjWorkCodeId, materialClassifierValue);
+
+                                                    if (indexEqualElement != -1)
+                                                    {
+                                                        var materialToSend = MaterialsListToSentValuesToAxapta[indexEqualElement];
+                                                            materialToSend.Volume += Double.Parse((from column in tableWithValues
+                                                                                                   where column.ColumnName == materialToSend.Units
+                                                                                                   select column).FirstOrDefault().RowValues[i].Value);
+                                                    }
+                                                    else
+                                                    {
+                                                        string units = dictionaryUnits[materialClassifierValue];
+
+                                                        MaterialToSend newMaterialToSend = new MaterialToSend()
+                                                        {
+                                                            ProjName = projName,
+                                                            SectionName = sectionNumberColumn.RowValues[i].Value,
+                                                            FloorName = levelNumberColumn.RowValues[i].Value,
+                                                            ProjWorkName = axaptaWorkset.Name,
+                                                            ProjWorkCodeId = axaptaWorkset.ProjWorkCodeId,
+                                                            ProjMaterialCodeId = materialClassifierValue,
+                                                            Volume = Double.Parse((from column in tableWithValues
+                                                                                    where column.ColumnName == units
+                                                                                    select column).FirstOrDefault().RowValues[i].Value),
+                                                            Units = units
+                                                        };
+
+                                                        MaterialsListToSentValuesToAxapta.Add(newMaterialToSend);
+                                                    }
+                                           
+                                                }
+                                                else
+                                                {
+                                                    string units = dictionaryUnits[materialClassifierValue];
+
+                                                    MaterialToSend newMaterialToSend = new MaterialToSend()
+                                                    {
+                                                        ProjName = projName,
+                                                        SectionName = sectionNumberColumn.RowValues[i].Value,
+                                                        FloorName = levelNumberColumn.RowValues[i].Value,
+                                                        ProjWorkName = axaptaWorkset.Name,
+                                                        ProjWorkCodeId = axaptaWorkset.ProjWorkCodeId,
+                                                        ProjMaterialCodeId = materialClassifierValue,
+                                                        Volume = Double.Parse((from column in tableWithValues
+                                                                                where column.ColumnName == units
+                                                                                select column).FirstOrDefault().RowValues[i].Value),
+                                                        Units = units
+                                                    };
+
+                                                    MaterialsListToSentValuesToAxapta.Add(newMaterialToSend);
+                                                }
                                             }
                                         }
-                                    else
-                                    {
-                                        WorkToSend newWorkToSend = new WorkToSend()
-                                        {
-                                            ProjName = projName,
-                                            SectionName = sectionNumberColumn.RowValues[i].Value,
-                                            FloorName = levelNumberColumn.RowValues[i].Value,
-                                            ProjWorkName = axaptaWorkset.Name,
-                                            ProjWorkCodeId = axaptaWorkset.ProjWorkCodeId,
-                                            Volume = Double.Parse((from column in tableWithValues
-                                                                   where column.ColumnName == axaptaWorkset.UnitId
-                                                                   select column).FirstOrDefault().RowValues[i].Value),
-                                            Units = axaptaWorkset.UnitId
-                                        };
-
-                                        WorksListToSentValuesToAxapta.Add(newWorkToSend);
                                     }
-
-                                    string materialClassifierValue = "";
-
-                                    if (materialColumn.RowValues[i].Value.Contains("//"))
+                                    catch
                                     {
-                                        materialClassifierValue = materialColumn.RowValues[i].Value.Split('/')[2];
-                                    }
-                                    if (materialColumn.RowValues[i].Value.Contains('<'))
-                                    {
-                                        materialClassifierValue = materialColumn.RowValues[i].Value.Split('<')[0];
-                                    }
-
-                                    if (MaterialsListToSentValuesToAxapta.Count > 0)
-                                    {
-                                        int indexEqualElement = GetEqualMaterialElement(MaterialsListToSentValuesToAxapta, projName, sectionNumberColumn.RowValues[i].Value, levelNumberColumn.RowValues[i].Value, axaptaWorkset.ProjWorkCodeId, materialClassifierValue);
-
-                                        if (indexEqualElement != -1)
-                                        {
-                                            var materialToSend = WorksListToSentValuesToAxapta[indexEqualElement];
-                                                materialToSend.Volume += Double.Parse((from column in tableWithValues
-                                                                                where column.ColumnName == materialToSend.Units
-                                                                                select column).FirstOrDefault().RowValues[i].Value);
-                                        }
-                                        else
-                                        {
-                                            string units = dictionaryUnits[materialClassifierValue];
-
-                                            MaterialToSend newMaterialToSend = new MaterialToSend()
-                                            {
-                                                ProjName = projName,
-                                                SectionName = sectionNumberColumn.RowValues[i].Value,
-                                                FloorName = levelNumberColumn.RowValues[i].Value,
-                                                ProjWorkName = axaptaWorkset.Name,
-                                                ProjWorkCodeId = axaptaWorkset.ProjWorkCodeId,
-                                                ProjMaterialCodeId = materialClassifierValue,
-                                                Volume = Double.Parse((from column in tableWithValues
-                                                                        where column.ColumnName == units
-                                                                        select column).FirstOrDefault().RowValues[i].Value),
-                                                Units = units
-                                            };
-
-                                            MaterialsListToSentValuesToAxapta.Add(newMaterialToSend);
-                                        }
-                                           
-                                    }
-                                    else
-                                    {
-                                        string units = dictionaryUnits[materialClassifierValue];
-
-                                        MaterialToSend newMaterialToSend = new MaterialToSend()
-                                        {
-                                            ProjName = projName,
-                                            SectionName = sectionNumberColumn.RowValues[i].Value,
-                                            FloorName = levelNumberColumn.RowValues[i].Value,
-                                            ProjWorkName = axaptaWorkset.Name,
-                                            ProjWorkCodeId = axaptaWorkset.ProjWorkCodeId,
-                                            ProjMaterialCodeId = materialClassifierValue,
-                                            Volume = Double.Parse((from column in tableWithValues
-                                                                    where column.ColumnName == units
-                                                                    select column).FirstOrDefault().RowValues[i].Value),
-                                            Units = units
-                                        };
-
-                                        MaterialsListToSentValuesToAxapta.Add(newMaterialToSend);
+                                        continue;
                                     }
                                 }
                             }
+                            else
+                            {
+                                continue;
+                            }
                         }
-                    }
 
-                    if(IsExportToJSON == true)
-                    {
-                        string jsonWorks = JsonConvert.SerializeObject(WorksListToSentValuesToAxapta);
-                        string newjsonWorks = UnidecodeSharpFork.Unidecoder.Unidecode(jsonWorks);
-
-                        using (StreamWriter sw = new StreamWriter($"D:\\Выгрузка работ.txt", false, System.Text.Encoding.UTF8))
+                        if(IsExportToJSON == true)
                         {
-                            sw.Write(newjsonWorks);
+                            string jsonWorks = JsonConvert.SerializeObject(WorksListToSentValuesToAxapta);
+                            string newjsonWorks = UnidecodeSharpFork.Unidecoder.Unidecode(jsonWorks);
+
+                            using (StreamWriter sw = new StreamWriter($"D:\\Выгрузка работ.txt", false, System.Text.Encoding.UTF8))
+                            {
+                                sw.Write(newjsonWorks);
+                            }
+
+                            string jsonMaterials = JsonConvert.SerializeObject(MaterialsListToSentValuesToAxapta);
+                            string newjsonMaterials = UnidecodeSharpFork.Unidecoder.Unidecode(jsonMaterials);
+
+                            using (StreamWriter sw = new StreamWriter($"D:\\Выгрузка материалов.txt", false, System.Text.Encoding.UTF8))
+                            {
+                                sw.Write(newjsonMaterials);
+                            }
                         }
 
-                        string jsonMaterials = JsonConvert.SerializeObject(MaterialsListToSentValuesToAxapta);
-                        string newjsonMaterials = UnidecodeSharpFork.Unidecoder.Unidecode(jsonMaterials);
-
-                        using (StreamWriter sw = new StreamWriter($"D:\\Выгрузка материалов.txt", false, System.Text.Encoding.UTF8))
+                        if (IsExportToExcel == true)
                         {
-                            sw.Write(newjsonMaterials);
+
                         }
-                    }
-
-                    if (IsExportToExcel == true)
-                    {
-
-                    }
-                    if (IsExportToAxapta == true)
-                    {
-                        //try
-                        //{
-                        //    axaptaService.SendToAxapta(WorksListToSentValuesToAxapta, SenderType.Work);
-                        //    MessageBox.Show("Работы выгружены.");
-                        //}
-                        //catch(Exception ex)
-                        //{
-                        //    MessageBox.Show($"Работы не выгружены.\n{ex.Message}\n{ex.StackTrace}");
-                        //}
-
-                        try
+                        if (IsExportToAxapta == true)
                         {
-                            axaptaService.SendToAxapta(MaterialsListToSentValuesToAxapta, SenderType.Material);
-                            MessageBox.Show("Материалы выгружены.");
+                            //try
+                            //{
+                            //    axaptaService.SendToAxapta(WorksListToSentValuesToAxapta, SenderType.Work);
+                            //    MessageBox.Show("Работы выгружены.");
+                            //}
+                            //catch(Exception ex)
+                            //{
+                            //    MessageBox.Show($"Работы не выгружены.\n{ex.Message}\n{ex.StackTrace}");
+                            //}
+
+                            try
+                            {
+                                axaptaService.SendToAxapta(MaterialsListToSentValuesToAxapta, SenderType.Material);
+                                MessageBox.Show("Материалы выгружены.");
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Материалы не выгружены.\n{ex.Message}\n{ex.StackTrace}");
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Материалы не выгружены.\n{ex.Message}\n{ex.StackTrace}");
-                        }
-                    }
                     }
                 }
                 );

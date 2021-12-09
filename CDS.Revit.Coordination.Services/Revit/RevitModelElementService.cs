@@ -646,30 +646,28 @@ namespace CDS.Revit.Coordination.Services.Revit
                         if (levelIdInstance == new ElementId(-1) || levelIdInstance == new ElementId(0))
                         {
                             var host = asInstance.Host;
-                            var asHostWall = host as Wall;
-                            var asHostFloor = host as Floor;
-                            var asLevel = host as Level;
-                            var asPipe = host as Pipe;
-
-                            if(asHostWall != null)
+                            var superComponent = asInstance.SuperComponent;
+                            if(host != null)
                             {
-                                levelIdInstance = asHostWall.LevelId;
-                            }
+                                if(superComponent != null)
+                                {
+                                    var superComponentAsInstance = superComponent as FamilyInstance;
 
-                            if (asHostFloor != null)
-                            {
-                                levelIdInstance = asHostFloor.LevelId;
-                            }
+                                    if(superComponentAsInstance != null) host = superComponentAsInstance.Host;
+                                }
+                                var asHostWall = host as Wall;
+                                var asHostFloor = host as Floor;
+                                var asLevel = host as Level;
+                                var asPipe = host as Pipe;
 
-                            if (asLevel != null)
-                            {
-                                levelIdInstance = asLevel.Id;
-                            }
-                            else if (asPipe != null)
-                            {
-                                levelIdInstance = asPipe.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId();
-                            }
+                                if (asHostWall != null) levelIdInstance = asHostWall.LevelId;
 
+                                if (asHostFloor != null) levelIdInstance = asHostFloor.LevelId;
+
+                                if (asLevel != null) levelIdInstance = asLevel.Id;
+
+                                else if (asPipe != null) levelIdInstance = asPipe.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId();
+                            }
                         }
 
                         if (levelInstanceParam != null)
