@@ -633,21 +633,34 @@ namespace CDS.Revit.Coordination.Services.Revit
                         asInstance.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
                         var levelInstanceParam = asInstance.LookupParameter("ADSK_Этаж");
                         var levelIdInstance = new ElementId(0);
+
                         try
                         {
                             levelIdInstance = asInstance.LevelId;
                         }
                         catch
                         {
-
                             levelIdInstance = asInstance.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId();
-
                         }
-                        if (levelIdInstance == new ElementId(-1))
+
+                        if (levelIdInstance == new ElementId(-1) || levelIdInstance == new ElementId(0))
                         {
                             var host = asInstance.Host;
+                            var asHostWall = host as Wall;
+                            var asHostFloor = host as Floor;
                             var asLevel = host as Level;
                             var asPipe = host as Pipe;
+
+                            if(asHostWall != null)
+                            {
+                                levelIdInstance = asHostWall.LevelId;
+                            }
+
+                            if (asHostFloor != null)
+                            {
+                                levelIdInstance = asHostFloor.LevelId;
+                            }
+
                             if (asLevel != null)
                             {
                                 levelIdInstance = asLevel.Id;
@@ -658,6 +671,7 @@ namespace CDS.Revit.Coordination.Services.Revit
                             }
 
                         }
+
                         if (levelInstanceParam != null)
                         {
                             levelInstanceParam.Set(GetLevelNumber(element, levelIdInstance, levelInstanceParam));

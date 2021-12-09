@@ -269,6 +269,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                             {
                                 Document doc = revitFileService.OpenRVTFile(PathToOpenColumn.RowValues[i].Value);
                                 RevitModelElementService revitModelElementService = new RevitModelElementService(doc);
+                                RevitModelScheduleService revitModelScheduleService = new RevitModelScheduleService();
+
                                 var unCorrectLevelsNames = revitModelElementService.GetUnCorrectLevelsNames();
                                 if(unCorrectLevelsNames == "")
                                 {
@@ -499,6 +501,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                             parameter1FromTable = parameter1.RowValues[n].Value;
                                                             parameter1ConditionFromTable = parameter1Condition.RowValues[n].Value;
                                                             parameterValue1FromTable = parameterValue1.RowValues[n].Value;
+
+                                                            if (parameterValue1FromTable.Contains('\t')) parameterValue1FromTable = parameterValue1FromTable.Remove(parameterValue1FromTable.IndexOf("\t"));
                                                         }
 
                                                         if (parameter2 != null)
@@ -506,6 +510,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                             parameter2FromTable = parameter2.RowValues[n].Value;
                                                             parameter2ConditionFromTable = parameter2Condition.RowValues[n].Value;
                                                             parameterValue2FromTable = parameterValue2.RowValues[n].Value;
+
+                                                            if (parameterValue2FromTable.Contains('\t')) parameterValue2FromTable = parameterValue2FromTable.Remove(parameterValue2FromTable.IndexOf("\t"));
                                                         }
 
                                                         if (parameter3 != null)
@@ -513,6 +519,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                             parameter3FromTable = parameter3.RowValues[n].Value;
                                                             parameter3ConditionFromTable = parameter3Condition.RowValues[n].Value;
                                                             parameterValue3FromTable = parameterValue3.RowValues[n].Value;
+
+                                                            if (parameterValue3FromTable.Contains('\t')) parameterValue3FromTable = parameterValue3FromTable.Remove(parameterValue3FromTable.IndexOf("\t"));
                                                         }
 
                                                         if (parameter4 != null)
@@ -520,6 +528,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                             parameter4FromTable = parameter4.RowValues[n].Value;
                                                             parameter4ConditionFromTable = parameter4Condition.RowValues[n].Value;
                                                             parameterValue4FromTable = parameterValue4.RowValues[n].Value;
+
+                                                            if (parameterValue4FromTable.Contains('\t')) parameterValue4FromTable = parameterValue4FromTable.Remove(parameterValue4FromTable.IndexOf("\t"));
                                                         }
 
                                                         if (parameter5 != null)
@@ -527,6 +537,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                             parameter5FromTable = parameter5.RowValues[n].Value;
                                                             parameter5ConditionFromTable = parameter5Condition.RowValues[n].Value;
                                                             parameterValue5FromTable = parameterValue5.RowValues[n].Value;
+
+                                                            if (parameterValue5FromTable.Contains('\t')) parameterValue5FromTable = parameterValue5FromTable.Remove(parameterValue5FromTable.IndexOf("\t"));
                                                         }
 
                                                         classifierLineFromTable = classifierForLine.RowValues[n].Value;
@@ -627,12 +639,50 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                 case "Воздуховоды":
                                                                     Duct asDuct = element as Duct;
 
-                                                                    parameterValue1FromElement = asDuct.LookupParameter(parameter1FromTable)?.AsString();
-                                                                    parameterValue2FromElement = asDuct.LookupParameter(parameter2FromTable)?.AsString();
-                                                                    parameterValue3FromElement = asDuct.LookupParameter(parameter3FromTable)?.AsString();
-                                                                    parameterValue4FromElement = asDuct.LookupParameter(parameter4FromTable)?.AsString();
-                                                                    parameterValue5FromElement = asDuct.LookupParameter(parameter5FromTable)?.AsString();
+                                                                    if(parameter1FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue1FromElement = asDuct.DuctType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue1FromElement = asDuct.LookupParameter(parameter1FromTable)?.AsString();
+                                                                    }
 
+                                                                    if (parameter2FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue2FromElement = asDuct.DuctType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue2FromElement = asDuct.LookupParameter(parameter2FromTable)?.AsString();
+                                                                    }
+
+                                                                    if (parameter3FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue3FromElement = asDuct.DuctType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue3FromElement = asDuct.LookupParameter(parameter3FromTable)?.AsString();
+                                                                    }
+
+                                                                    if (parameter4FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue4FromElement = asDuct.DuctType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue4FromElement = asDuct.LookupParameter(parameter4FromTable)?.AsString();
+                                                                    }
+
+                                                                    if (parameter5FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue5FromElement = asDuct.DuctType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue5FromElement = asDuct.LookupParameter(parameter5FromTable)?.AsString();
+                                                                    }
 
                                                                     isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
                                                                     isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
@@ -668,11 +718,50 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                 case "Трубы":
                                                                     Pipe asPipe = element as Pipe;
 
-                                                                    parameterValue1FromElement = asPipe.LookupParameter(parameter1FromTable)?.AsString();
-                                                                    parameterValue2FromElement = asPipe.LookupParameter(parameter2FromTable)?.AsString();
-                                                                    parameterValue3FromElement = asPipe.LookupParameter(parameter3FromTable)?.AsString();
-                                                                    parameterValue4FromElement = asPipe.LookupParameter(parameter4FromTable)?.AsString();
-                                                                    parameterValue5FromElement = asPipe.LookupParameter(parameter5FromTable)?.AsString();
+                                                                    if (parameter1FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue1FromElement = asPipe.PipeType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue1FromElement = asPipe.LookupParameter(parameter1FromTable)?.AsString();
+                                                                    }
+
+                                                                    if (parameter2FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue2FromElement = asPipe.PipeType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue2FromElement = asPipe.LookupParameter(parameter2FromTable)?.AsString();
+                                                                    }
+
+                                                                    if (parameter3FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue3FromElement = asPipe.PipeType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue3FromElement = asPipe.LookupParameter(parameter3FromTable)?.AsString();
+                                                                    }
+
+                                                                    if (parameter4FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue4FromElement = asPipe.PipeType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue4FromElement = asPipe.LookupParameter(parameter4FromTable)?.AsString();
+                                                                    }
+
+                                                                    if (parameter5FromTable == "Тип")
+                                                                    {
+                                                                        parameterValue5FromElement = asPipe.PipeType?.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        parameterValue5FromElement = asPipe.LookupParameter(parameter5FromTable)?.AsString();
+                                                                    }
 
                                                                     isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
                                                                     isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
@@ -705,85 +794,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
                                                                     break;
 
-                                                                case "Материалы изоляции воздуховодов":
-                                                                    DuctInsulation asDuctInsulation = element as DuctInsulation;
-
-                                                                    parameterValue1FromElement = asDuctInsulation.LookupParameter(parameter1FromTable)?.AsString();
-                                                                    parameterValue2FromElement = asDuctInsulation.LookupParameter(parameter2FromTable)?.AsString();
-                                                                    parameterValue3FromElement = asDuctInsulation.LookupParameter(parameter3FromTable)?.AsString();
-                                                                    parameterValue4FromElement = asDuctInsulation.LookupParameter(parameter4FromTable)?.AsString();
-                                                                    parameterValue5FromElement = asDuctInsulation.LookupParameter(parameter5FromTable)?.AsString();
-
-                                                                    isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
-                                                                    isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
-                                                                    isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
-                                                                    isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
-                                                                    isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
-
-                                                                    if (isFirstParameterValueMatch == true &&
-                                                                        isSecondParameterValueMatch == true &&
-                                                                        isThirdParameterValueMatch == true &&
-                                                                        isFouthParameterValueMatch == true &&
-                                                                        isFifthParameterValueMatch == true)
-                                                                    {
-                                                                        classifierForSet = classifierLineFromTable;
-
-                                                                        try
-                                                                        {
-                                                                            asDuctInsulation.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
-
-                                                                            if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
-                                                                            {
-                                                                                asDuctInsulation.LookupParameter("ЦДС_Классификатор_Материалов")?.Set(materialClassifierFromTable);
-                                                                            }
-                                                                        }
-                                                                        catch
-                                                                        {
-                                                                            break;
-                                                                        }
-                                                                    }
-
-                                                                    break;
-
-                                                                case "Материалы изоляции труб":
-                                                                    PipeInsulation asPipeInsulation = element as PipeInsulation;
-
-                                                                    parameterValue1FromElement = asPipeInsulation.LookupParameter(parameter1FromTable)?.AsString();
-                                                                    parameterValue2FromElement = asPipeInsulation.LookupParameter(parameter2FromTable)?.AsString();
-                                                                    parameterValue3FromElement = asPipeInsulation.LookupParameter(parameter3FromTable)?.AsString();
-                                                                    parameterValue4FromElement = asPipeInsulation.LookupParameter(parameter4FromTable)?.AsString();
-                                                                    parameterValue5FromElement = asPipeInsulation.LookupParameter(parameter5FromTable)?.AsString();
-
-                                                                    isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
-                                                                    isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
-                                                                    isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
-                                                                    isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
-                                                                    isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
-
-                                                                    if (isFirstParameterValueMatch == true &&
-                                                                        isSecondParameterValueMatch == true &&
-                                                                        isThirdParameterValueMatch == true &&
-                                                                        isFouthParameterValueMatch == true &&
-                                                                        isFifthParameterValueMatch == true)
-                                                                    {
-                                                                        classifierForSet = classifierLineFromTable;
-
-                                                                        try
-                                                                        {
-                                                                            asPipeInsulation.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
-
-                                                                            if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
-                                                                            {
-                                                                                asPipeInsulation.LookupParameter("ЦДС_Классификатор_Материалов")?.Set(materialClassifierFromTable);
-                                                                            }
-                                                                        }
-                                                                        catch
-                                                                        {
-                                                                            break;
-                                                                        }
-                                                                    }
-                                                                    break;
-
                                                                 default:
                                                                     try
                                                                     {
@@ -793,32 +803,81 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         {
                                                                             if(!asFamilyInstance.Name.Contains("Свая") && !asFamilyInstance.Name.Contains("свая") && !asFamilyInstance.Name.Contains("ЛМ"))
                                                                             {
-                                                                                parameterValue1FromElement = asFamilyInstance.LookupParameter(parameter1FromTable)?.AsString();
-                                                                                parameterValue2FromElement = asFamilyInstance.LookupParameter(parameter2FromTable)?.AsString();
-                                                                                parameterValue3FromElement = asFamilyInstance.LookupParameter(parameter3FromTable)?.AsString();
-                                                                                parameterValue4FromElement = asFamilyInstance.LookupParameter(parameter4FromTable)?.AsString();
-                                                                                parameterValue5FromElement = asFamilyInstance.LookupParameter(parameter5FromTable)?.AsString();
-
-                                                                                isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
-                                                                                isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
-                                                                                isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
-                                                                                isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
-                                                                                isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
-
-                                                                                if (isFirstParameterValueMatch == true &&
-                                                                                    isSecondParameterValueMatch == true &&
-                                                                                    isThirdParameterValueMatch == true &&
-                                                                                    isFouthParameterValueMatch == true &&
-                                                                                    isFifthParameterValueMatch == true)
+                                                                                if(asFamilyInstance.Category?.Name != "Арматура воздуховодов" &&
+                                                                                   asFamilyInstance.Category?.Name != "Арматура трубопроводов" &&
+                                                                                   asFamilyInstance.Category?.Name != "Оборудование" &&
+                                                                                   asFamilyInstance.Category?.Name != "Арматура воздуховодов" &&
+                                                                                   asFamilyInstance.Category?.Name != "Воздухораспределители" &&
+                                                                                   asFamilyInstance.Category?.Name != "Сантехнические приборы" &&
+                                                                                   asFamilyInstance.Category?.Name != "Соединительные детали воздуховодов" &&
+                                                                                   asFamilyInstance.Category?.Name != "Соединительные детали трубопроводов" &&
+                                                                                   asFamilyInstance.Category?.Name != "Несущая арматура")
                                                                                 {
-                                                                                    classifierForSet = classifierLineFromTable;
-                                                                                    asFamilyInstance.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
-
-                                                                                    if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
+                                                                                    if (parameter1FromTable == "Тип")
                                                                                     {
-                                                                                        asFamilyInstance.LookupParameter("ЦДС_Классификатор_Материалов")?.Set(materialClassifierFromTable);
+                                                                                        parameterValue1FromElement = asFamilyInstance.Symbol?.Name;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        parameterValue1FromElement = asFamilyInstance.LookupParameter(parameter1FromTable)?.AsString();
                                                                                     }
 
+                                                                                    if (parameter2FromTable == "Тип")
+                                                                                    {
+                                                                                        parameterValue2FromElement = asFamilyInstance.Symbol?.Name;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        parameterValue2FromElement = asFamilyInstance.LookupParameter(parameter2FromTable)?.AsString();
+                                                                                    }
+
+                                                                                    if (parameter3FromTable == "Тип")
+                                                                                    {
+                                                                                        parameterValue3FromElement = asFamilyInstance.Symbol?.Name;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        parameterValue3FromElement = asFamilyInstance.LookupParameter(parameter3FromTable)?.AsString();
+                                                                                    }
+
+                                                                                    if (parameter4FromTable == "Тип")
+                                                                                    {
+                                                                                        parameterValue4FromElement = asFamilyInstance.Symbol?.Name;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        parameterValue4FromElement = asFamilyInstance.LookupParameter(parameter4FromTable)?.AsString();
+                                                                                    }
+
+                                                                                    if (parameter5FromTable == "Тип")
+                                                                                    {
+                                                                                        parameterValue5FromElement = asFamilyInstance.Symbol?.Name;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        parameterValue5FromElement = asFamilyInstance.LookupParameter(parameter5FromTable)?.AsString();
+                                                                                    }
+
+                                                                                    isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
+                                                                                    isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
+                                                                                    isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
+                                                                                    isFouthParameterValueMatch = IsParameterValueMatch(parameter4ConditionFromTable, parameterValue4FromTable, parameterValue4FromElement);
+                                                                                    isFifthParameterValueMatch = IsParameterValueMatch(parameter5ConditionFromTable, parameterValue5FromTable, parameterValue5FromElement);
+
+                                                                                    if (isFirstParameterValueMatch == true &&
+                                                                                        isSecondParameterValueMatch == true &&
+                                                                                        isThirdParameterValueMatch == true &&
+                                                                                        isFouthParameterValueMatch == true &&
+                                                                                        isFifthParameterValueMatch == true)
+                                                                                    {
+                                                                                        classifierForSet = classifierLineFromTable;
+                                                                                        asFamilyInstance.LookupParameter("ЦДС_Классификатор")?.Set(classifierForSet);
+
+                                                                                        if (materialClassifierFromTable != "" || materialClassifierFromTable != "по материалу")
+                                                                                        {
+                                                                                            asFamilyInstance.LookupParameter("ЦДС_Классификатор_Материалов")?.Set(materialClassifierFromTable);
+                                                                                        }
+                                                                                    }
                                                                                 }
                                                                             }
                                                                         }
@@ -850,14 +909,9 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                     //    tr.Commit();
                                     //}
 
-                                    //using (Transaction tr = new Transaction(doc))
-                                    //{
-                                    //    tr.Start("");
+                                    revitModelScheduleService.ExportToCSV(doc, PathToSaveColumn.RowValues[i].Value, ProjectNameColumn.RowValues[i].Value);
 
-                                    //    tr.Commit();
-                                    //}
-
-                                    if(IsSaveNWC == true)
+                                    if (IsSaveNWC == true)
                                     {
                                         revitFileService.ExportToNWC(PathToSaveColumn.RowValues[i].Value, doc);
                                     }
@@ -1326,19 +1380,19 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
         {
             bool isParameterValueMatch = false;
 
-            if (parameterConditionFromTable == "Равно")
+            if (parameterConditionFromTable == "Равно" && parameterValueFromElement != null)
             {
                 isParameterValueMatch = parameterValueFromElement == parameterValueFromTable;
             }
-            if (parameterConditionFromTable == "НеРавно")
+            if (parameterConditionFromTable == "НеРавно" && parameterValueFromElement != null)
             {
                 isParameterValueMatch = parameterValueFromElement != parameterValueFromTable;
             }
-            if (parameterConditionFromTable == "Содержит")
+            if (parameterConditionFromTable == "Содержит" && parameterValueFromElement != null)
             {
                 isParameterValueMatch = parameterValueFromElement.Contains(parameterValueFromTable);
             }
-            if (parameterConditionFromTable == "НеСодержит")
+            if (parameterConditionFromTable == "НеСодержит" && parameterValueFromElement != null)
             {
                 isParameterValueMatch = !parameterValueFromElement.Contains(parameterValueFromTable);
             }

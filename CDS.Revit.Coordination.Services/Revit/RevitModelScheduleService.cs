@@ -16,21 +16,45 @@ namespace CDS.Revit.Coordination.Services.Revit
             return System.Text.RegularExpressions.Regex.Replace(name, invalidReStr, "_");
         }
 
+        private List<ViewSchedule> GetViewSchedulesForExport(Document doc)
+        {
+            List<ViewSchedule> viewSchedulesResult = new List<ViewSchedule>();
+
+            var viewScheduleIds = new FilteredElementCollector(doc).OfClass(typeof(ViewSchedule)).WhereElementIsNotElementType().ToElementIds();
+
+            foreach(ElementId elementId in viewScheduleIds)
+            {
+                ViewSchedule viewSchedule = doc.GetElement(elementId) as ViewSchedule;
+                string viewScheduleName = viewSchedule?.Name;
+
+                if (viewScheduleName.Split('_')[0] == "Axapta") viewSchedulesResult.Add(viewSchedule);
+            }
+
+            return viewSchedulesResult;
+        }
+
         /*Метод экспорта спецификации в формат .csv
          */
-        public void ExportToCSV(ViewSchedule viewSchedule, string filePath, string projName, Document doc)
+        public void ExportToCSV(Document doc, string filePath, string projName)
         {
-            string viewName = MakeValidFileName(viewSchedule.Name);
-            ViewScheduleExportOptions exportOptions = new ViewScheduleExportOptions();
+            var viewSchedulesList = GetViewSchedulesForExport(doc);
 
-            string docName = doc.PathName.Split('.')[0];
-            int index = docName.LastIndexOf('_');
-            docName = docName.Substring(0, index);
-
-
-            if (!viewSchedule.Name.Contains("<"))
+            foreach(ViewSchedule viewSchedule in viewSchedulesList)
             {
-                viewSchedule.Export(filePath, $"{projName}_{docName}_{viewName}.csv", exportOptions);
+                string viewName = MakeValidFileName(viewSchedule.Name);
+                ViewScheduleExportOptions exportOptions = new ViewScheduleExportOptions();
+                exportOptions.FieldDelimiter = ";";
+                exportOptions.TextQualifier = ExportTextQualifier.None;
+
+                string docName = doc.PathName.Split('.')[0];
+                int index = docName.LastIndexOf('_');
+                docName = docName.Substring(0, index);
+
+
+                if (!viewSchedule.Name.Contains("<"))
+                {
+                    viewSchedule.Export(filePath, $"{projName}_{docName}_{viewName}.csv", exportOptions);
+                }
             }
         }
     }
