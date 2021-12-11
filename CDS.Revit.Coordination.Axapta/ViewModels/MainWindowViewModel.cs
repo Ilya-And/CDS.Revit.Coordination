@@ -371,12 +371,12 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                         var classTable = excelService.GetValuesFromExcelTable(PathTableColumn.RowValues[i].Value);
 
                                         ColumnValues category = (from column in classTable
-                                                                    where column.ColumnName == "Категория"
-                                                                    select column).FirstOrDefault();
+                                                                 where column.ColumnName == "Категория"
+                                                                 select column).FirstOrDefault();
 
                                         ColumnValues parameter1 = (from column in classTable
-                                                                    where column.ColumnName == "Параметр_1"
-                                                                    select column).FirstOrDefault();
+                                                                   where column.ColumnName == "Параметр_1"
+                                                                   select column).FirstOrDefault();
 
                                         ColumnValues parameter1Condition = (from column in classTable
                                                                             where column.ColumnName == "Условие_1"
@@ -387,8 +387,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         select column).FirstOrDefault();
 
                                         ColumnValues parameter2 = (from column in classTable
-                                                                    where column.ColumnName == "Параметр_2"
-                                                                    select column).FirstOrDefault();
+                                                                   where column.ColumnName == "Параметр_2"
+                                                                   select column).FirstOrDefault();
 
                                         ColumnValues parameter2Condition = (from column in classTable
                                                                             where column.ColumnName == "Условие_2"
@@ -400,7 +400,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
                                         ColumnValues parameter3 = (from column in classTable
                                                                    where column.ColumnName == "Параметр_3"
-                                                                    select column).FirstOrDefault();
+                                                                   select column).FirstOrDefault();
 
                                         ColumnValues parameter3Condition = (from column in classTable
                                                                             where column.ColumnName == "Условие_3"
@@ -412,8 +412,8 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
 
                                         ColumnValues parameter4 = (from column in classTable
-                                                                    where column.ColumnName == "Параметр_4"
-                                                                    select column).FirstOrDefault();
+                                                                   where column.ColumnName == "Параметр_4"
+                                                                   select column).FirstOrDefault();
 
                                         ColumnValues parameter4Condition = (from column in classTable
                                                                             where column.ColumnName == "Условие_4"
@@ -436,25 +436,23 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                         select column).FirstOrDefault();
 
                                         ColumnValues classifierForLine = (from column in classTable
-                                                                    where column.ColumnName == "ЦДС_Классификатор(Пр)"
-                                                                    select column).FirstOrDefault();
+                                                                          where column.ColumnName == "ЦДС_Классификатор(Пр)"
+                                                                          select column).FirstOrDefault();
 
                                         ColumnValues classifierForOther = (from column in classTable
-                                                                            where column.ColumnName == "ЦДС_Классификатор(Кр)"
-                                                                            select column).FirstOrDefault();
+                                                                           where column.ColumnName == "ЦДС_Классификатор(Кр)"
+                                                                           select column).FirstOrDefault();
 
                                         ColumnValues materialClassifier = (from column in classTable
-                                                                            where column.ColumnName == "ЦДС_Классификатор_Материалов"
-                                                                            select column).FirstOrDefault();
+                                                                           where column.ColumnName == "ЦДС_Классификатор_Материалов"
+                                                                           select column).FirstOrDefault();
 
                                         
                                         ElementId view3D = revitModelElementService.Get3DViewForExportToNWC().Id;
 
-                                        var allElementsByView = (from element in new FilteredElementCollector(doc, view3D).WhereElementIsNotElementType().ToElements()
-                                                                 where element.Category?.Name != "Несущая арматура"
-                                                                 select element);
-
-                                        var allRebarElements = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Rebar).WhereElementIsNotElementType().ToElements();
+                                        var allElementsByView = from element in new FilteredElementCollector(doc, view3D).WhereElementIsNotElementType().ToElements()
+                                                                where element.Category?.Name != "Несущая арматура"
+                                                                select element;
 
                                         foreach (Element element in allElementsByView)
                                         {
@@ -801,155 +799,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
                                                                     break;
 
-                                                                case "Несущая арматура":
-                                                                    Rebar asRebar = element as Rebar;
-                                                                    RebarInSystem asRebarInSystem = element as RebarInSystem;
-                                                                    FamilyInstance asFamInstance = element as FamilyInstance;
-
-                                                                    if (asRebar != null)
-                                                                    {
-                                                                        var parameterClassifierRebarForSet = asRebar.LookupParameter("ЦДС_Классификатор");
-                                                                        
-                                                                        if (parameterClassifierRebarForSet != null)
-                                                                        {
-                                                                            var host = doc.GetElement(asRebar.GetHostId());
-
-                                                                            var hostAsWall = host as Wall;
-                                                                            var hostAsFloor = host as Autodesk.Revit.DB.Floor;
-                                                                            var hostAsInstance = host as FamilyInstance;
-
-                                                                            if (hostAsWall != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-
-                                                                            if (hostAsFloor != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-
-                                                                            if (hostAsInstance != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    else if (asRebarInSystem != null)
-                                                                    {
-                                                                        var parameterClassifierRebarForSet = asRebarInSystem.LookupParameter("ЦДС_Классификатор");
-
-                                                                        if (parameterClassifierRebarForSet != null)
-                                                                        {
-                                                                            var host = doc.GetElement(asRebarInSystem.GetHostId());
-
-                                                                            var hostAsWall = host as Wall;
-                                                                            var hostAsFloor = host as Autodesk.Revit.DB.Floor;
-                                                                            var hostAsInstance = host as FamilyInstance;
-
-                                                                            if (hostAsWall != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-
-                                                                            if (hostAsFloor != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-
-                                                                            if (hostAsInstance != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-                                                                        }
-                                                                    }
-
-                                                                    else if (asFamInstance != null)
-                                                                    {
-                                                                        var parameterClassifierRebarForSet = asFamInstance.LookupParameter("ЦДС_Классификатор");
-
-                                                                        if (parameterClassifierRebarForSet != null)
-                                                                        {
-                                                                            var hostForInstance = asFamInstance.Host;
-                                                                            if (hostForInstance == null)
-                                                                            {
-                                                                                var superComponent = asFamInstance.SuperComponent as FamilyInstance;
-                                                                                hostForInstance = superComponent.Host;
-                                                                            }
-                                                                            var hostAsFloor = hostForInstance as Autodesk.Revit.DB.Floor;
-                                                                            var hostAsWall = hostForInstance as Wall;
-                                                                            var hostAsInstance = hostForInstance as FamilyInstance;
-                                                                            var hostAsStairs = hostForInstance as Stairs;
-                                                                            var hostAsLevel = hostForInstance as Level;
-                                                                            if (hostAsFloor != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-                                                                            else if (hostAsWall != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-                                                                            else if (hostAsInstance != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-                                                                            else if (hostAsStairs != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-                                                                            else if (hostAsLevel != null)
-                                                                            {
-                                                                                var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                                                                var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsValueString();
-
-                                                                                if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                                                                if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
-                                                                            }
-                                                                        }
-                                                                    }
-
-
-                                                                    break;
-
                                                                 default:
                                                                     try
                                                                     {
@@ -1051,9 +900,19 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                             catch (Exception ex)
                                             {
                                                 //continue;
-                                                MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + element);
+                                                MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + element + "-" + element.Id);
                                             }
                                         }
+                                        tr.Commit();
+                                    }
+
+                                    using (Transaction tr = new Transaction(doc))
+                                    {
+                                        tr.Start("Заполнение классификатора для арматуры");
+
+                                        var allRebarElements = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Rebar).WhereElementIsNotElementType().ToElements();
+
+                                        revitModelElementService.SetClassifierParameterValueToRebar(allRebarElements);
 
                                         tr.Commit();
                                     }
@@ -1082,7 +941,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                 }
                             }
                         }
-                       
                     }
                     else
                     {
