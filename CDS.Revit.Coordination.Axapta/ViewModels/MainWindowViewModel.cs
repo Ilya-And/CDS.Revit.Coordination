@@ -1055,9 +1055,13 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                     if(indexEqualElement != -1)
                                                     {
                                                         var workToSend = WorksListToSentValuesToAxapta[indexEqualElement];
-                                                        workToSend.Volume += Double.Parse((from column in tableWithValues
-                                                                                            where column.ColumnName == workToSend.Units
-                                                                                            select column).FirstOrDefault().RowValues[i].Value);
+
+                                                        if(workToSend.Units != "м2")
+                                                        {
+                                                            workToSend.Volume += Double.Parse((from column in tableWithValues
+                                                                                                where column.ColumnName == workToSend.Units
+                                                                                                select column).FirstOrDefault().RowValues[i].Value);
+                                                        }
                                                     }
 
                                                     else
@@ -1118,6 +1122,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                     if (indexEqualElement != -1)
                                                     {
                                                         var materialToSend = MaterialsListToSentValuesToAxapta[indexEqualElement];
+
                                                             materialToSend.Volume += Double.Parse((from column in tableWithValues
                                                                                                    where column.ColumnName == materialToSend.Units
                                                                                                    select column).FirstOrDefault().RowValues[i].Value);
