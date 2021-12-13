@@ -321,13 +321,17 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                 case BuiltInCategory.OST_Floors:
                     var asFloor = element as Floor;
-                    asFloor.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                    var levelFloorParam = asFloor.LookupParameter("ADSK_Этаж");
-                    var levelIdFloor = asFloor.LevelId;
-                    if (levelFloorParam != null)
+
+                    if(asFloor != null)
                     {
-                        levelFloorParam.Set(GetLevelNumber(element, levelIdFloor, levelFloorParam));
-                        _countElements++;
+                        asFloor.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
+                        var levelFloorParam = asFloor.LookupParameter("ADSK_Этаж");
+                        var levelIdFloor = asFloor.LevelId;
+                        if (levelFloorParam != null)
+                        {
+                            levelFloorParam.Set(GetLevelNumber(element, levelIdFloor, levelFloorParam));
+                            _countElements++;
+                        }
                     }
                     break;
 
@@ -475,14 +479,49 @@ namespace CDS.Revit.Coordination.Services.Revit
                     try
                     {
                         var asStairs = element as Stairs;
-                        asStairs.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelStairsParam = asStairs.LookupParameter("ADSK_Этаж");
-                        var levelIdStairs = asStairs.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM).AsElementId();
-                        if (levelStairsParam != null)
+                        var asFamInstance = element as FamilyInstance;
+
+                        if(asStairs != null)
                         {
-                            levelStairsParam.Set(GetLevelNumber(element, levelIdStairs, levelStairsParam));
-                            _countElements++;
+                            asStairs.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
+                            var levelStairsParam = asStairs.LookupParameter("ADSK_Этаж");
+                            var levelIdStairs = asStairs.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM).AsElementId();
+                            if (levelStairsParam != null)
+                            {
+                                levelStairsParam.Set(GetLevelNumber(element, levelIdStairs, levelStairsParam));
+                                _countElements++;
+                            }
                         }
+
+                        if(asFamInstance != null)
+                        {
+                            asFamInstance.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
+                            var levelStairsParam = asFamInstance.LookupParameter("ADSK_Этаж");
+                            var levelIdStairs = asFamInstance.LevelId;
+
+                            if(levelIdStairs == null)
+                            {
+                                var host = asFamInstance.Host;
+                                if(host != null)
+                                {
+                                    var hostAsFloor = host as Floor;
+                                    if (hostAsFloor != null) levelIdStairs = hostAsFloor.LevelId;
+                                }
+                                else
+                                {
+                                    var boundingBox = asFamInstance.get_BoundingBox(null).Min.Z;
+                                    
+                                }
+
+                            }
+
+                            if (levelStairsParam != null && levelIdStairs != null)
+                            {
+                                levelStairsParam.Set(GetLevelNumber(element, levelIdStairs, levelStairsParam));
+                                _countElements++;
+                            }
+                        }
+
                         break;
                     }
                     catch
@@ -504,11 +543,11 @@ namespace CDS.Revit.Coordination.Services.Revit
                         {
                             try
                             {
-                                levelIdRebar = _doc.GetElement(asRebar.GetHostId()).LevelId;
+                                levelIdRebar = asRebar.LevelId;
                             }
                             catch
                             {
-                                levelIdRebar = _doc.GetElement(asRebar.GetHostId()).get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId();
+                                levelIdRebar = asRebar.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId();
                             }
                             if (levelRebarParam != null)
                             {
@@ -526,14 +565,26 @@ namespace CDS.Revit.Coordination.Services.Revit
                         {
                             try
                             {
-                                levelIdRebar = _doc.GetElement(asRebarInSystem.GetHostId()).LevelId;
+                                levelIdRebar = asRebarInSystem.LevelId;
                             }
                             catch
                             {
-                                levelIdRebar = _doc.GetElement(asRebarInSystem.GetHostId()).get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId();
+                                var host = _doc.GetElement(asRebarInSystem.GetHostId());
+
+                                var hostAsFloor = host as Floor;
+                                var hostAsWall = host as Wall;
+                                var hostAsFamilyInstance = host as FamilyInstance;
+
+                                if (hostAsFloor != null) levelIdRebar = hostAsFloor.LevelId;
+
+                                if (hostAsWall != null) levelIdRebar = hostAsWall.LevelId;
+
+                                if (hostAsFamilyInstance != null) levelIdRebar = hostAsFamilyInstance.LevelId;
+
+                                levelIdRebar = asRebarInSystem.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId();
                             }
 
-                            if (levelRebarInSystemParam != null)
+                            if (levelRebarInSystemParam != null && levelIdRebar != null)
                             {
                                 levelRebarInSystemParam.Set(GetLevelNumber(element, levelIdRebar, levelRebarInSystemParam));
                                 _countElements++;
@@ -819,7 +870,7 @@ namespace CDS.Revit.Coordination.Services.Revit
                             if (hostForInstance == null)
                             {
                                 var superComponent = asFamInstance.SuperComponent as FamilyInstance;
-                                hostForInstance = superComponent.Host;
+                                hostForInstance = superComponent?.Host;
                             }
 
                             if(hostForInstance != null)

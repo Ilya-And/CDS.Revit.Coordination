@@ -311,12 +311,12 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                     {
                                                         try
                                                         {
-                                                            if (element.Category != null)
+                                                            if (element.Category != null && sectionNumber != null)
                                                             {
                                                                 revitModelElementService.SetParametersValuesToElement(element, sectionNumber);
                                                             }
                                                         }
-                                                        catch (InvalidObjectException)
+                                                        catch
                                                         {
                                                             continue;
                                                         }
@@ -1189,7 +1189,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                             string jsonWorks = JsonConvert.SerializeObject(WorksListToSentValuesToAxapta);
                             string newjsonWorks = UnidecodeSharpFork.Unidecoder.Unidecode(jsonWorks);
 
-                            using (StreamWriter sw = new StreamWriter($"D:\\Выгрузка работ.txt", false, System.Text.Encoding.UTF8))
+                            using (StreamWriter sw = new StreamWriter("D:\\Выгрузка работ.txt", false, System.Text.Encoding.UTF8))
                             {
                                 sw.Write(newjsonWorks);
                             }
@@ -1197,7 +1197,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                             string jsonMaterials = JsonConvert.SerializeObject(MaterialsListToSentValuesToAxapta);
                             string newjsonMaterials = UnidecodeSharpFork.Unidecoder.Unidecode(jsonMaterials);
 
-                            using (StreamWriter sw = new StreamWriter($"D:\\Выгрузка материалов.txt", false, System.Text.Encoding.UTF8))
+                            using (StreamWriter sw = new StreamWriter("D:\\Выгрузка материалов.txt", false, System.Text.Encoding.UTF8))
                             {
                                 sw.Write(newjsonMaterials);
                             }
@@ -1205,7 +1205,14 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
                         if (IsExportToExcel == true)
                         {
-
+                            try
+                            {
+                                SaveResultToExcel(WorksListToSentValuesToAxapta, MaterialsListToSentValuesToAxapta, "D:\\Выгрузка.xlsx");
+                            }
+                            catch(Exception ex)
+                            {
+                                MessageBox.Show($"Excel не сохранен.\n{ex.Message}\n{ex.StackTrace}");
+                            }
                         }
                         if (IsExportToAxapta == true)
                         {
@@ -1429,7 +1436,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
         /*Метод создания таблицы в формате .xlsx
          */
-        private void SaveWorksAsExcel(List<WorkToSend> inputElementList, string path)
+        private void SaveResultToExcel(ObservableCollection<WorkToSend> inputWorkList, ObservableCollection<MaterialToSend> inputMaterialList, string path)
         {
             try
             {
@@ -1440,25 +1447,54 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                 var workSheet = (Worksheet)objWorkBook.Sheets[1];
                 workSheet.Name = "Объемы";
 
-                int rowCount = 1;
+                int rowWorkCount = 1;
 
-                workSheet.Cells[rowCount, 1] = "Номер секции";
-                workSheet.Cells[rowCount, 2] = "Этаж";
-                workSheet.Cells[rowCount, 3] = "Работа";
-                workSheet.Cells[rowCount, 3] = "Код работы";
-                workSheet.Cells[rowCount, 5] = "Ед. изм.";
-                workSheet.Cells[rowCount, 6] = "Объем";
-                Range header_range = workSheet.Range["A1", "F1"];
+                workSheet.Cells[rowWorkCount, 1] = "Номер секции";
+                workSheet.Cells[rowWorkCount, 2] = "Этаж";
+                workSheet.Cells[rowWorkCount, 3] = "Работа";
+                workSheet.Cells[rowWorkCount, 4] = "Код работы";
+                workSheet.Cells[rowWorkCount, 5] = "Объем";
+                workSheet.Cells[rowWorkCount, 6] = "Ед. изм.";
 
-                foreach (var element in inputElementList)
+                Range headerWork_range = workSheet.Range["A1", "F1"];
+
+                foreach (var element in inputWorkList)
                 {
-                    rowCount++;
-                    workSheet.Cells[rowCount, 1] = element.SectionName;
-                    workSheet.Cells[rowCount, 2] = element.FloorName;
-                    workSheet.Cells[rowCount, 3] = element.ProjWorkName;
-                    workSheet.Cells[rowCount, 4] = element.ProjWorkCodeId;
-                    workSheet.Cells[rowCount, 5] = element.Units;
-                    workSheet.Cells[rowCount, 6] = element.Volume;
+                    rowWorkCount++;
+                    workSheet.Cells[rowWorkCount, 1] = element.SectionName;
+                    workSheet.Cells[rowWorkCount, 2] = element.FloorName;
+                    workSheet.Cells[rowWorkCount, 3] = element.ProjWorkName;
+                    workSheet.Cells[rowWorkCount, 4] = element.ProjWorkCodeId;
+                    workSheet.Cells[rowWorkCount, 5] = element.Volume;
+                    workSheet.Cells[rowWorkCount, 6] = element.Units;
+                }
+
+                objWorkBook.Sheets.Add();
+                var materialSheet = (Worksheet)objWorkBook.Sheets[2];
+                workSheet.Name = "Объемы";
+
+                int rowMaterialCount = 1;
+
+                materialSheet.Cells[rowMaterialCount, 1] = "Номер секции";
+                materialSheet.Cells[rowMaterialCount, 2] = "Этаж";
+                materialSheet.Cells[rowMaterialCount, 3] = "Работа";
+                materialSheet.Cells[rowMaterialCount, 4] = "Код работы";
+                materialSheet.Cells[rowMaterialCount, 5] = "Код номенклатуры";
+                materialSheet.Cells[rowMaterialCount, 6] = "Объем";
+                materialSheet.Cells[rowMaterialCount, 7] = "Ед. изм.";
+
+                Range headerMaterial_range = workSheet.Range["A1", "G1"];
+
+                foreach (var element in inputMaterialList)
+                {
+                    rowMaterialCount++;
+                    materialSheet.Cells[rowMaterialCount, 1] = element.SectionName;
+                    materialSheet.Cells[rowMaterialCount, 2] = element.FloorName;
+                    materialSheet.Cells[rowMaterialCount, 3] = element.ProjWorkName;
+                    materialSheet.Cells[rowMaterialCount, 4] = element.ProjWorkCodeId;
+                    materialSheet.Cells[rowMaterialCount, 5] = element.ProjMaterialCodeId;
+                    materialSheet.Cells[rowMaterialCount, 6] = element.Volume;
+                    materialSheet.Cells[rowMaterialCount, 7] = element.Units;
                 }
 
                 objWorkBook.SaveAs(path);
@@ -1466,13 +1502,13 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                 objWorkBook.Close(true, Type.Missing, Type.Missing);
 
                 objWorkExcel.Quit();
-                MessageBox.Show("Сделано!");
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
+
         #endregion
     }
 }
