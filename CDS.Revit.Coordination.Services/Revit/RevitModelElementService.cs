@@ -292,6 +292,7 @@ namespace CDS.Revit.Coordination.Services.Revit
         public void SetParametersValuesToElement(Element element, string sectionNumber)
         {
             var category = element.Category;
+            var levelsList = new FilteredElementCollector(_doc).OfClass(typeof(Level)).WhereElementIsNotElementType().ToElements() as List<Level>;
 
             switch ((BuiltInCategory)category.Id.IntegerValue)
             {
@@ -509,10 +510,39 @@ namespace CDS.Revit.Coordination.Services.Revit
                                 }
                                 else
                                 {
-                                    var boundingBox = asFamInstance.get_BoundingBox(null).Min.Z;
-                                    
-                                }
+                                    var boundingBoxMinHeightMark = asFamInstance.get_BoundingBox(null).Min.Z;
+                                    if(levelsList != null && boundingBoxMinHeightMark != null)
+                                    {
+                                        double levelFirstHeightMark;
+                                        double levelSecondHeightMark;
 
+                                        for (int i = 0; i<= levelsList.Count - 1; i++)
+                                        {
+
+                                            if(i > 0)
+                                            {
+                                                levelFirstHeightMark = levelsList[i - 1].Elevation;
+                                                levelSecondHeightMark = levelsList[i].Elevation;
+                                                double differenceLevelsHeightMark = (levelFirstHeightMark + levelSecondHeightMark) / 2;
+
+                                                if(boundingBoxMinHeightMark < levelSecondHeightMark && boundingBoxMinHeightMark > levelFirstHeightMark)
+                                                {
+                                                    if(boundingBoxMinHeightMark < differenceLevelsHeightMark)
+                                                    {
+                                                        levelIdStairs = levelsList[i - 1].Id;
+                                                        break;
+                                                    }
+
+                                                    else
+                                                    {
+                                                        levelIdStairs = levelsList[i].Id;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
 
                             if (levelStairsParam != null && levelIdStairs != null)
