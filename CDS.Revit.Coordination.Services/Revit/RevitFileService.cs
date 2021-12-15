@@ -58,8 +58,9 @@ namespace CDS.Revit.Coordination.Services.Revit
         public void SaveAndCloseRVTFile(string filePath, Document doc)
         {
             // Сохраняем файл
+            var docName = doc.Title.ToString();
 
-            doc.SaveAs(filePath + "\\" + doc.PathName);
+            doc.SaveAs(filePath + "\\" + docName + ".rvt");
 
             // Закрываем файл
 

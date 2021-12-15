@@ -359,8 +359,6 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                         if (foundationIds != null)
                                             revitModelElementService.CreatePartsFromElement(foundationIds);
 
-                                        doc.Regenerate();
-
                                         tr.Commit();
                                     }
 
@@ -579,6 +577,12 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     parameterValue4FromElement = asPart.LookupParameter(parameter4FromTable)?.AsString();
                                                                     parameterValue5FromElement = asPart.LookupParameter(parameter5FromTable)?.AsString();
 
+                                                                    if(parameterValue1FromElement == null || parameterValue1FromElement == "") parameterValue1FromElement = asPart.LookupParameter(parameter1FromTable)?.AsValueString();
+                                                                    if(parameterValue2FromElement == null || parameterValue2FromElement == "") parameterValue2FromElement = asPart.LookupParameter(parameter2FromTable)?.AsValueString();
+                                                                    if(parameterValue3FromElement == null || parameterValue3FromElement == "") parameterValue3FromElement = asPart.LookupParameter(parameter3FromTable)?.AsValueString();
+                                                                    if(parameterValue4FromElement == null || parameterValue4FromElement == "") parameterValue4FromElement = asPart.LookupParameter(parameter4FromTable)?.AsValueString();
+                                                                    if(parameterValue5FromElement == null || parameterValue5FromElement == "") parameterValue5FromElement = asPart.LookupParameter(parameter5FromTable)?.AsValueString();
+
                                                                     isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
                                                                     isSecondParameterValueMatch = IsParameterValueMatch(parameter2ConditionFromTable, parameterValue2FromTable, parameterValue2FromElement);
                                                                     isThirdParameterValueMatch = IsParameterValueMatch(parameter3ConditionFromTable, parameterValue3FromTable, parameterValue3FromElement);
@@ -651,6 +655,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue1FromElement = asDuct.LookupParameter(parameter1FromTable)?.AsString();
+                                                                        if (parameterValue1FromElement == null || parameterValue1FromElement == "") parameterValue1FromElement = asDuct.LookupParameter(parameter1FromTable)?.AsValueString();
                                                                     }
 
                                                                     if (parameter2FromTable == "Тип")
@@ -660,6 +665,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue2FromElement = asDuct.LookupParameter(parameter2FromTable)?.AsString();
+                                                                        if (parameterValue2FromElement == null || parameterValue2FromElement == "") parameterValue2FromElement = asDuct.LookupParameter(parameter2FromTable)?.AsValueString();
                                                                     }
 
                                                                     if (parameter3FromTable == "Тип")
@@ -669,6 +675,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue3FromElement = asDuct.LookupParameter(parameter3FromTable)?.AsString();
+                                                                        if (parameterValue3FromElement == null || parameterValue3FromElement == "") parameterValue3FromElement = asDuct.LookupParameter(parameter3FromTable)?.AsValueString();
                                                                     }
 
                                                                     if (parameter4FromTable == "Тип")
@@ -678,6 +685,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue4FromElement = asDuct.LookupParameter(parameter4FromTable)?.AsString();
+                                                                        if (parameterValue4FromElement == null || parameterValue4FromElement == "") parameterValue4FromElement = asDuct.LookupParameter(parameter4FromTable)?.AsValueString();
                                                                     }
 
                                                                     if (parameter5FromTable == "Тип")
@@ -687,6 +695,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue5FromElement = asDuct.LookupParameter(parameter5FromTable)?.AsString();
+                                                                        if (parameterValue5FromElement == null || parameterValue5FromElement == "") parameterValue5FromElement = asDuct.LookupParameter(parameter5FromTable)?.AsValueString();
                                                                     }
 
                                                                     isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
@@ -730,6 +739,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue1FromElement = asPipe.LookupParameter(parameter1FromTable)?.AsString();
+                                                                        if (parameterValue1FromElement == null || parameterValue1FromElement == "") parameterValue1FromElement = asPipe.LookupParameter(parameter1FromTable)?.AsValueString();
                                                                     }
 
                                                                     if (parameter2FromTable == "Тип")
@@ -739,6 +749,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue2FromElement = asPipe.LookupParameter(parameter2FromTable)?.AsString();
+                                                                        if (parameterValue2FromElement == null || parameterValue2FromElement == "") parameterValue2FromElement = asPipe.LookupParameter(parameter2FromTable)?.AsValueString();
                                                                     }
 
                                                                     if (parameter3FromTable == "Тип")
@@ -748,6 +759,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue3FromElement = asPipe.LookupParameter(parameter3FromTable)?.AsString();
+                                                                        if (parameterValue3FromElement == null || parameterValue3FromElement == "") parameterValue3FromElement = asPipe.LookupParameter(parameter3FromTable)?.AsValueString();
                                                                     }
 
                                                                     if (parameter4FromTable == "Тип")
@@ -757,6 +769,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue4FromElement = asPipe.LookupParameter(parameter4FromTable)?.AsString();
+                                                                        if (parameterValue4FromElement == null || parameterValue4FromElement == "") parameterValue4FromElement = asPipe.LookupParameter(parameter4FromTable)?.AsValueString();
                                                                     }
 
                                                                     if (parameter5FromTable == "Тип")
@@ -766,6 +779,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                     else
                                                                     {
                                                                         parameterValue5FromElement = asPipe.LookupParameter(parameter5FromTable)?.AsString();
+                                                                        if (parameterValue5FromElement == null || parameterValue5FromElement == "") parameterValue5FromElement = asPipe.LookupParameter(parameter5FromTable)?.AsValueString();
                                                                     }
 
                                                                     isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
@@ -825,6 +839,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                                     else
                                                                                     {
                                                                                         parameterValue1FromElement = asFamilyInstance.LookupParameter(parameter1FromTable)?.AsString();
+                                                                                        if (parameterValue1FromElement == null || parameterValue1FromElement == "") parameterValue1FromElement = asFamilyInstance.LookupParameter(parameter1FromTable)?.AsValueString();
                                                                                     }
 
                                                                                     if (parameter2FromTable == "Тип")
@@ -834,6 +849,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                                     else
                                                                                     {
                                                                                         parameterValue2FromElement = asFamilyInstance.LookupParameter(parameter2FromTable)?.AsString();
+                                                                                        if (parameterValue2FromElement == null || parameterValue2FromElement == "") parameterValue2FromElement = asFamilyInstance.LookupParameter(parameter2FromTable)?.AsValueString();
                                                                                     }
 
                                                                                     if (parameter3FromTable == "Тип")
@@ -843,6 +859,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                                     else
                                                                                     {
                                                                                         parameterValue3FromElement = asFamilyInstance.LookupParameter(parameter3FromTable)?.AsString();
+                                                                                        if (parameterValue3FromElement == null || parameterValue3FromElement == "") parameterValue3FromElement = asFamilyInstance.LookupParameter(parameter3FromTable)?.AsValueString();
                                                                                     }
 
                                                                                     if (parameter4FromTable == "Тип")
@@ -852,6 +869,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                                     else
                                                                                     {
                                                                                         parameterValue4FromElement = asFamilyInstance.LookupParameter(parameter4FromTable)?.AsString();
+                                                                                        if (parameterValue4FromElement == null || parameterValue4FromElement == "") parameterValue4FromElement = asFamilyInstance.LookupParameter(parameter4FromTable)?.AsValueString();
                                                                                     }
 
                                                                                     if (parameter5FromTable == "Тип")
@@ -861,6 +879,7 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                                                     else
                                                                                     {
                                                                                         parameterValue5FromElement = asFamilyInstance.LookupParameter(parameter5FromTable)?.AsString();
+                                                                                        if (parameterValue5FromElement == null || parameterValue5FromElement == "") parameterValue5FromElement = asFamilyInstance.LookupParameter(parameter5FromTable)?.AsValueString();
                                                                                     }
 
                                                                                     isFirstParameterValueMatch = IsParameterValueMatch(parameter1ConditionFromTable, parameterValue1FromTable, parameterValue1FromElement);
@@ -903,6 +922,9 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                                 MessageBox.Show(ex.Message + "\n" + ex.StackTrace + "\n" + element + "-" + element.Id);
                                             }
                                         }
+
+                                        doc.Regenerate();
+
                                         tr.Commit();
                                     }
 
@@ -917,16 +939,39 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                                         tr.Commit();
                                     }
 
-                                    revitModelScheduleService.ExportToCSV(doc, PathToSaveColumn.RowValues[i].Value, ProjectNameColumn.RowValues[i].Value);
+
+                                    try
+                                    {
+                                        revitModelScheduleService.ExportToCSV(doc, PathToSaveColumn.RowValues[i].Value, ProjectNameColumn.RowValues[i].Value);
+                                    }
+                                    catch(Exception ex)
+                                    {
+                                        MessageBox.Show($"Спецификации из файла {doc.PathName} не экспортированы.\nИ вот почему:\n{ex.Message}\n{ex.StackTrace}");
+                                    }
 
                                     if (IsSaveNWC == true)
                                     {
-                                        revitFileService.ExportToNWC(PathToSaveColumn.RowValues[i].Value, doc);
+                                        try
+                                        {
+                                            revitFileService.ExportToNWC(PathToSaveColumn.RowValues[i].Value, doc);
+                                        }
+                                        catch(Exception ex)
+                                        {
+                                            MessageBox.Show($"Данные не выгружены в NWC.\nИ вот почему:\n{ex.Message}\n{ex.StackTrace}");
+                                            continue;
+                                        }
                                     }
 
                                     if(IsSaveRVT == true)
                                     {
-                                        revitFileService.SaveAndCloseRVTFile(PathToSaveColumn.RowValues[i].Value, doc);
+                                        try
+                                        {
+                                            revitFileService.SaveAndCloseRVTFile(PathToSaveColumn.RowValues[i].Value, doc);
+                                        }
+                                        catch
+                                        {
+                                            doc.Close(false);
+                                        }
                                     }
                                     else
                                     {
@@ -1207,24 +1252,24 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
                         {
                             try
                             {
-                                SaveResultToExcel(WorksListToSentValuesToAxapta, MaterialsListToSentValuesToAxapta, "D:\\Выгрузка.xlsx");
+                                SaveResultToExcel();
                             }
                             catch(Exception ex)
                             {
-                                MessageBox.Show($"Excel не сохранен.\n{ex.Message}\n{ex.StackTrace}");
+                                MessageBox.Show($"\n{ex.Message}\n{ex.StackTrace}");
                             }
                         }
                         if (IsExportToAxapta == true)
                         {
-                            //try
-                            //{
-                            //    axaptaService.SendToAxapta(WorksListToSentValuesToAxapta, SenderType.Work);
-                            //    MessageBox.Show("Работы выгружены.");
-                            //}
-                            //catch(Exception ex)
-                            //{
-                            //    MessageBox.Show($"Работы не выгружены.\n{ex.Message}\n{ex.StackTrace}");
-                            //}
+                            try
+                            {
+                                axaptaService.SendToAxapta(WorksListToSentValuesToAxapta, SenderType.Work);
+                                MessageBox.Show("Работы выгружены.");
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Работы не выгружены.\n{ex.Message}\n{ex.StackTrace}");
+                            }
 
                             try
                             {
@@ -1436,72 +1481,112 @@ namespace CDS.Revit.Coordination.Axapta.ViewModels
 
         /*Метод создания таблицы в формате .xlsx
          */
-        private void SaveResultToExcel(ObservableCollection<WorkToSend> inputWorkList, ObservableCollection<MaterialToSend> inputMaterialList, string path)
+        private void SaveResultToExcel()
         {
             try
             {
-                Application objWorkExcel = new Application();
-                Workbook objWorkBook = objWorkExcel.Workbooks.Add();
+                string worksForExport = "Проект;Номер секции;Этаж;Работа;Код работы;Объем;Ед. изм.\n";
+                string materialsForExport = "Проект;Номер секции;Этаж;Работа;Код работы;Код номенклатуры;Объем;Ед. изм.\n";
 
-                objWorkBook.Sheets.Add();
-                var workSheet = (Worksheet)objWorkBook.Sheets[1];
-                workSheet.Name = "Объемы";
-
-                int rowWorkCount = 1;
-
-                workSheet.Cells[rowWorkCount, 1] = "Номер секции";
-                workSheet.Cells[rowWorkCount, 2] = "Этаж";
-                workSheet.Cells[rowWorkCount, 3] = "Работа";
-                workSheet.Cells[rowWorkCount, 4] = "Код работы";
-                workSheet.Cells[rowWorkCount, 5] = "Объем";
-                workSheet.Cells[rowWorkCount, 6] = "Ед. изм.";
-
-                Range headerWork_range = workSheet.Range["A1", "F1"];
-
-                foreach (var element in inputWorkList)
+                for(int i = 0; i <= WorksListToSentValuesToAxapta.Count - 1; i++)
                 {
-                    rowWorkCount++;
-                    workSheet.Cells[rowWorkCount, 1] = element.SectionName;
-                    workSheet.Cells[rowWorkCount, 2] = element.FloorName;
-                    workSheet.Cells[rowWorkCount, 3] = element.ProjWorkName;
-                    workSheet.Cells[rowWorkCount, 4] = element.ProjWorkCodeId;
-                    workSheet.Cells[rowWorkCount, 5] = element.Volume;
-                    workSheet.Cells[rowWorkCount, 6] = element.Units;
+                    string newElementString = $"{WorksListToSentValuesToAxapta[i].ProjName};" +
+                        $" {WorksListToSentValuesToAxapta[i].SectionName};" +
+                        $" {WorksListToSentValuesToAxapta[i].FloorName};" +
+                        $"{WorksListToSentValuesToAxapta[i].ProjWorkName};" +
+                        $" {WorksListToSentValuesToAxapta[i].ProjWorkCodeId};" +
+                        $" {WorksListToSentValuesToAxapta[i].Volume};" +
+                        $"{WorksListToSentValuesToAxapta[i].Units}\n";
+
+                    worksForExport += newElementString;
                 }
 
-                objWorkBook.Sheets.Add();
-                var materialSheet = (Worksheet)objWorkBook.Sheets[2];
-                workSheet.Name = "Объемы";
-
-                int rowMaterialCount = 1;
-
-                materialSheet.Cells[rowMaterialCount, 1] = "Номер секции";
-                materialSheet.Cells[rowMaterialCount, 2] = "Этаж";
-                materialSheet.Cells[rowMaterialCount, 3] = "Работа";
-                materialSheet.Cells[rowMaterialCount, 4] = "Код работы";
-                materialSheet.Cells[rowMaterialCount, 5] = "Код номенклатуры";
-                materialSheet.Cells[rowMaterialCount, 6] = "Объем";
-                materialSheet.Cells[rowMaterialCount, 7] = "Ед. изм.";
-
-                Range headerMaterial_range = workSheet.Range["A1", "G1"];
-
-                foreach (var element in inputMaterialList)
+                for (int i = 0; i <= MaterialsListToSentValuesToAxapta.Count - 1; i++)
                 {
-                    rowMaterialCount++;
-                    materialSheet.Cells[rowMaterialCount, 1] = element.SectionName;
-                    materialSheet.Cells[rowMaterialCount, 2] = element.FloorName;
-                    materialSheet.Cells[rowMaterialCount, 3] = element.ProjWorkName;
-                    materialSheet.Cells[rowMaterialCount, 4] = element.ProjWorkCodeId;
-                    materialSheet.Cells[rowMaterialCount, 5] = element.ProjMaterialCodeId;
-                    materialSheet.Cells[rowMaterialCount, 6] = element.Volume;
-                    materialSheet.Cells[rowMaterialCount, 7] = element.Units;
+                    string newElementString = $"{MaterialsListToSentValuesToAxapta[i].ProjName};" +
+                        $" {MaterialsListToSentValuesToAxapta[i].SectionName};" +
+                        $" {MaterialsListToSentValuesToAxapta[i].FloorName};" +
+                        $"{MaterialsListToSentValuesToAxapta[i].ProjWorkName};" +
+                        $" {MaterialsListToSentValuesToAxapta[i].ProjWorkCodeId};" +
+                        $" {MaterialsListToSentValuesToAxapta[i].ProjMaterialCodeId};" +
+                        $" {MaterialsListToSentValuesToAxapta[i].Volume};" +
+                        $"{MaterialsListToSentValuesToAxapta[i].Units}\n";
+
+                    materialsForExport += newElementString;
                 }
 
-                objWorkBook.SaveAs(path);
+                using (StreamWriter sw = new StreamWriter("D:\\Выгрузка работ.csv", false, System.Text.Encoding.UTF8))
+                {
+                    sw.Write(worksForExport);
+                }
 
-                objWorkBook.Close(true, Type.Missing, Type.Missing);
+                using (StreamWriter sw = new StreamWriter("D:\\Выгрузка номенклатур.csv", false, System.Text.Encoding.UTF8))
+                {
+                    sw.Write(materialsForExport);
+                }
 
-                objWorkExcel.Quit();
+                //Application objWorkExcel = new Application();
+                //Workbook objWorkBook = objWorkExcel.Workbooks.Add();
+
+                //objWorkBook.Sheets.Add();
+                //var workSheet = (Worksheet)objWorkBook.Sheets[1];
+                //workSheet.Name = "Объемы";
+
+                //int rowWorkCount = 1;
+
+                //workSheet.Cells[rowWorkCount, 1] = "Номер секции";
+                //workSheet.Cells[rowWorkCount, 2] = "Этаж";
+                //workSheet.Cells[rowWorkCount, 3] = "Работа";
+                //workSheet.Cells[rowWorkCount, 4] = "Код работы";
+                //workSheet.Cells[rowWorkCount, 5] = "Объем";
+                //workSheet.Cells[rowWorkCount, 6] = "Ед. изм.";
+
+                //Range headerWork_range = workSheet.Range["A1", "F1"];
+
+                //foreach (var element in inputWorkList)
+                //{
+                //    rowWorkCount++;
+                //    workSheet.Cells[rowWorkCount, 1] = element.SectionName;
+                //    workSheet.Cells[rowWorkCount, 2] = element.FloorName;
+                //    workSheet.Cells[rowWorkCount, 3] = element.ProjWorkName;
+                //    workSheet.Cells[rowWorkCount, 4] = element.ProjWorkCodeId;
+                //    workSheet.Cells[rowWorkCount, 5] = element.Volume;
+                //    workSheet.Cells[rowWorkCount, 6] = element.Units;
+                //}
+
+                //objWorkBook.Sheets.Add();
+                //var materialSheet = (Worksheet)objWorkBook.Sheets[2];
+                //workSheet.Name = "Объемы";
+
+                //int rowMaterialCount = 1;
+
+                //materialSheet.Cells[rowMaterialCount, 1] = "Номер секции";
+                //materialSheet.Cells[rowMaterialCount, 2] = "Этаж";
+                //materialSheet.Cells[rowMaterialCount, 3] = "Работа";
+                //materialSheet.Cells[rowMaterialCount, 4] = "Код работы";
+                //materialSheet.Cells[rowMaterialCount, 5] = "Код номенклатуры";
+                //materialSheet.Cells[rowMaterialCount, 6] = "Объем";
+                //materialSheet.Cells[rowMaterialCount, 7] = "Ед. изм.";
+
+                //Range headerMaterial_range = workSheet.Range["A1", "G1"];
+
+                //foreach (var element in inputMaterialList)
+                //{
+                //    rowMaterialCount++;
+                //    materialSheet.Cells[rowMaterialCount, 1] = element.SectionName;
+                //    materialSheet.Cells[rowMaterialCount, 2] = element.FloorName;
+                //    materialSheet.Cells[rowMaterialCount, 3] = element.ProjWorkName;
+                //    materialSheet.Cells[rowMaterialCount, 4] = element.ProjWorkCodeId;
+                //    materialSheet.Cells[rowMaterialCount, 5] = element.ProjMaterialCodeId;
+                //    materialSheet.Cells[rowMaterialCount, 6] = element.Volume;
+                //    materialSheet.Cells[rowMaterialCount, 7] = element.Units;
+                //}
+
+                //objWorkBook.SaveAs(path);
+
+                //objWorkBook.Close(true, Type.Missing, Type.Missing);
+
+                //objWorkExcel.Quit();
             }
             catch (Exception ex)
             {

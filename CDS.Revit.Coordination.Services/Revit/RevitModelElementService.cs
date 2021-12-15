@@ -377,7 +377,7 @@ namespace CDS.Revit.Coordination.Services.Revit
                             _countElements++;
                         }
                     }
-                    else if (asExtrusionRoof != null)
+                    if (asExtrusionRoof != null)
                     {
                         asExtrusionRoof.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
                         var levelExtrusionRoofParam = asExtrusionRoof.LookupParameter("ADSK_Этаж");
@@ -518,7 +518,6 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                                         for (int i = 0; i<= levelsList.Count - 1; i++)
                                         {
-
                                             if(i > 0)
                                             {
                                                 levelFirstHeightMark = levelsList[i - 1].Elevation;
@@ -566,23 +565,76 @@ namespace CDS.Revit.Coordination.Services.Revit
                     var levelIdRebar = new ElementId(0);
                     if (asRebar != null)
                     {
-                        asRebar.LookupParameter("ADSK_Номер секции").Set(sectionNumber); ;
+                        asRebar.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
                         var levelRebarParam = asRebar.LookupParameter("ADSK_Этаж");
 
-                        if (!levelRebarParam.AsString().Contains('-') || !levelRebarParam.AsValueString().Contains('-'))
+                        string levelRebarParamValue = "";
+
+                        string levelRebarParamAsString = levelRebarParam.AsString();
+                        string levelRebarParamAsValueString = levelRebarParam.AsValueString();
+
+                        if (levelRebarParamAsString != null && levelRebarParamAsString != "") levelRebarParamValue = levelRebarParamAsString;
+                        if (levelRebarParamAsValueString != null && levelRebarParamAsValueString != "") levelRebarParamValue = levelRebarParamAsValueString;
+
+                        if(levelRebarParamValue != null)
                         {
-                            try
+                            if (!levelRebarParamValue.Contains('-'))
                             {
-                                levelIdRebar = asRebar.LevelId;
-                            }
-                            catch
-                            {
-                                levelIdRebar = asRebar.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId();
-                            }
-                            if (levelRebarParam != null)
-                            {
-                                levelRebarParam.Set(GetLevelNumber(element, levelIdRebar, levelRebarParam));
-                                _countElements++;
+                                var host = _doc.GetElement(asRebar.GetHostId());
+
+                                var hostAsFloor = host as Floor;
+                                var hostAsWall = host as Wall;
+                                var hostAsFamilyInstance = host as FamilyInstance;
+
+                                if (hostAsFloor != null) levelIdRebar = hostAsFloor.LevelId;
+
+                                if (hostAsWall != null) levelIdRebar = hostAsWall.LevelId;
+
+                                if (hostAsFamilyInstance != null)
+                                {
+                                    levelIdRebar = hostAsFamilyInstance.LevelId;
+
+                                    if(levelIdRebar == null || levelIdRebar == new ElementId(0))
+                                    {
+                                        var boundingBoxMinHeightMark = hostAsFamilyInstance.get_BoundingBox(null).Min.Z;
+                                        if (levelsList != null && boundingBoxMinHeightMark != null)
+                                        {
+                                            double levelFirstHeightMark;
+                                            double levelSecondHeightMark;
+
+                                            for (int i = 0; i <= levelsList.Count - 1; i++)
+                                            {
+                                                if (i > 0)
+                                                {
+                                                    levelFirstHeightMark = levelsList[i - 1].Elevation;
+                                                    levelSecondHeightMark = levelsList[i].Elevation;
+                                                    double differenceLevelsHeightMark = (levelFirstHeightMark + levelSecondHeightMark) / 2;
+
+                                                    if (boundingBoxMinHeightMark < levelSecondHeightMark && boundingBoxMinHeightMark > levelFirstHeightMark)
+                                                    {
+                                                        if (boundingBoxMinHeightMark < differenceLevelsHeightMark)
+                                                        {
+                                                            levelIdRebar = levelsList[i - 1].Id;
+                                                            break;
+                                                        }
+
+                                                        else
+                                                        {
+                                                            levelIdRebar = levelsList[i].Id;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (levelRebarParam != null)
+                                {
+                                    levelRebarParam.Set(GetLevelNumber(element, levelIdRebar, levelRebarParam));
+                                    _countElements++;
+                                }
                             }
                         }
                     }
@@ -591,13 +643,17 @@ namespace CDS.Revit.Coordination.Services.Revit
                         asRebarInSystem.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
                         var levelRebarInSystemParam = asRebarInSystem.LookupParameter("ADSK_Этаж");
 
-                        if (!levelRebarInSystemParam.AsString().Contains('-') || !levelRebarInSystemParam.AsValueString().Contains('-'))
+                        string levelRebarParamValue = "";
+
+                        string levelRebarParamAsString = levelRebarInSystemParam.AsString();
+                        string levelRebarParamAsValueString = levelRebarInSystemParam.AsValueString();
+
+                        if (levelRebarParamAsString != null && levelRebarParamAsString != "") levelRebarParamValue = levelRebarParamAsString;
+                        if (levelRebarParamAsValueString != null && levelRebarParamAsValueString != "") levelRebarParamValue = levelRebarParamAsValueString;
+
+                        if(levelRebarParamValue != null)
                         {
-                            try
-                            {
-                                levelIdRebar = asRebarInSystem.LevelId;
-                            }
-                            catch
+                            if (!levelRebarParamValue.Contains('-'))
                             {
                                 var host = _doc.GetElement(asRebarInSystem.GetHostId());
 
@@ -609,15 +665,51 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                                 if (hostAsWall != null) levelIdRebar = hostAsWall.LevelId;
 
-                                if (hostAsFamilyInstance != null) levelIdRebar = hostAsFamilyInstance.LevelId;
+                                if (hostAsFamilyInstance != null)
+                                {
+                                    levelIdRebar = hostAsFamilyInstance.LevelId;
 
-                                levelIdRebar = asRebarInSystem.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId();
-                            }
+                                    if (levelIdRebar == null || levelIdRebar == new ElementId(0))
+                                    {
+                                        var boundingBoxMinHeightMark = hostAsFamilyInstance.get_BoundingBox(null).Min.Z;
+                                        if (levelsList != null && boundingBoxMinHeightMark != null)
+                                        {
+                                            double levelFirstHeightMark;
+                                            double levelSecondHeightMark;
 
-                            if (levelRebarInSystemParam != null && levelIdRebar != null)
-                            {
-                                levelRebarInSystemParam.Set(GetLevelNumber(element, levelIdRebar, levelRebarInSystemParam));
-                                _countElements++;
+                                            for (int i = 0; i <= levelsList.Count - 1; i++)
+                                            {
+                                                if (i > 0)
+                                                {
+                                                    levelFirstHeightMark = levelsList[i - 1].Elevation;
+                                                    levelSecondHeightMark = levelsList[i].Elevation;
+                                                    double differenceLevelsHeightMark = (levelFirstHeightMark + levelSecondHeightMark) / 2;
+
+                                                    if (boundingBoxMinHeightMark < levelSecondHeightMark && boundingBoxMinHeightMark > levelFirstHeightMark)
+                                                    {
+                                                        if (boundingBoxMinHeightMark < differenceLevelsHeightMark)
+                                                        {
+                                                            levelIdRebar = levelsList[i - 1].Id;
+                                                            break;
+                                                        }
+
+                                                        else
+                                                        {
+                                                            levelIdRebar = levelsList[i].Id;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (levelRebarInSystemParam != null && levelIdRebar != null)
+                                {
+                                    levelRebarInSystemParam.Set(GetLevelNumber(element, levelIdRebar, levelRebarInSystemParam));
+                                    _countElements++;
+                                }
                             }
                         }
                     }
@@ -627,51 +719,135 @@ namespace CDS.Revit.Coordination.Services.Revit
                         asFamilyInstance.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
                         var levelFamilyInstanceParam = asFamilyInstance.LookupParameter("ADSK_Этаж");
 
-                        if (!levelFamilyInstanceParam.AsString().Contains('-') || !levelFamilyInstanceParam.AsValueString().Contains('-'))
+                        string levelRebarParamValue = "";
+
+                        string levelRebarParamAsString = levelFamilyInstanceParam.AsString();
+                        string levelRebarParamAsValueString = levelFamilyInstanceParam.AsValueString();
+
+                        if (levelRebarParamAsString != null && levelRebarParamAsString != "") levelRebarParamValue = levelRebarParamAsString;
+                        if (levelRebarParamAsValueString != null && levelRebarParamAsValueString != "") levelRebarParamValue = levelRebarParamAsValueString;
+
+                        if(levelRebarParamValue != null)
                         {
-                            var hostForInstance = asFamilyInstance.Host;
-
-                            if (hostForInstance == null)
+                            if (!levelRebarParamValue.Contains('-'))
                             {
-                                var superComponent = asFamilyInstance.SuperComponent as FamilyInstance;
-                                hostForInstance = superComponent.Host;
-                            }
+                                var hostForInstance = asFamilyInstance.Host;
 
-                            var hostAsFloor = hostForInstance as Floor;
-                            var hostAsWall = hostForInstance as Wall;
-                            var hostAsInstance = hostForInstance as FamilyInstance;
-                            var hostAsStairs = hostForInstance as Stairs;
-                            var hostAsLevel = hostForInstance as Level;
+                                if (hostForInstance == null)
+                                {
+                                    var superComponent = asFamilyInstance.SuperComponent as FamilyInstance;
+                                    hostForInstance = superComponent.Host;
 
-                            if (hostAsFloor != null)
-                            {
-                                levelIdRebar = hostAsFloor.LevelId;
-                            }
+                                    if (hostForInstance == null)
+                                    {
+                                        var boundingBoxMinHeightMark = asFamilyInstance.get_BoundingBox(null).Min.Z;
+                                        if (levelsList != null && boundingBoxMinHeightMark != null)
+                                        {
+                                            double levelFirstHeightMark;
+                                            double levelSecondHeightMark;
 
-                            else if (hostAsWall != null)
-                            {
-                                levelIdRebar = hostAsWall.LevelId;
-                            }
+                                            for (int i = 0; i <= levelsList.Count - 1; i++)
+                                            {
+                                                if (i > 0)
+                                                {
+                                                    levelFirstHeightMark = levelsList[i - 1].Elevation;
+                                                    levelSecondHeightMark = levelsList[i].Elevation;
+                                                    double differenceLevelsHeightMark = (levelFirstHeightMark + levelSecondHeightMark) / 2;
 
-                            else if (hostAsInstance != null)
-                            {
-                                levelIdRebar = hostAsInstance.LevelId;
-                            }
+                                                    if (boundingBoxMinHeightMark < levelSecondHeightMark && boundingBoxMinHeightMark > levelFirstHeightMark)
+                                                    {
+                                                        if (boundingBoxMinHeightMark < differenceLevelsHeightMark)
+                                                        {
+                                                            levelIdRebar = levelsList[i - 1].Id;
+                                                            break;
+                                                        }
 
-                            else if (hostAsStairs != null)
-                            {
-                                levelIdRebar = hostAsStairs.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM).AsElementId();
-                            }
+                                                        else
+                                                        {
+                                                            levelIdRebar = levelsList[i].Id;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
 
-                            else if (hostAsLevel != null)
-                            {
-                                levelIdRebar = hostAsLevel.Id;
-                            }
+                                else
+                                {
+                                    var hostAsFloor = hostForInstance as Floor;
+                                    var hostAsWall = hostForInstance as Wall;
+                                    var hostAsInstance = hostForInstance as FamilyInstance;
+                                    var hostAsStairs = hostForInstance as Stairs;
+                                    var hostAsLevel = hostForInstance as Level;
 
-                            if (levelFamilyInstanceParam != null)
-                            {
-                                levelFamilyInstanceParam.Set(GetLevelNumber(element, levelIdRebar, levelFamilyInstanceParam));
-                                _countElements++;
+                                    if (hostAsFloor != null)
+                                    {
+                                        levelIdRebar = hostAsFloor.LevelId;
+                                    }
+
+                                    else if (hostAsWall != null)
+                                    {
+                                        levelIdRebar = hostAsWall.LevelId;
+                                    }
+
+                                    else if (hostAsInstance != null)
+                                    {
+                                        levelIdRebar = hostAsInstance.LevelId;
+
+                                        if (levelIdRebar == null || levelIdRebar == new ElementId(0))
+                                        {
+                                            var boundingBoxMinHeightMark = hostAsInstance.get_BoundingBox(null).Min.Z;
+                                            if (levelsList != null && boundingBoxMinHeightMark != null)
+                                            {
+                                                double levelFirstHeightMark;
+                                                double levelSecondHeightMark;
+
+                                                for (int i = 0; i <= levelsList.Count - 1; i++)
+                                                {
+                                                    if (i > 0)
+                                                    {
+                                                        levelFirstHeightMark = levelsList[i - 1].Elevation;
+                                                        levelSecondHeightMark = levelsList[i].Elevation;
+                                                        double differenceLevelsHeightMark = (levelFirstHeightMark + levelSecondHeightMark) / 2;
+
+                                                        if (boundingBoxMinHeightMark < levelSecondHeightMark && boundingBoxMinHeightMark > levelFirstHeightMark)
+                                                        {
+                                                            if (boundingBoxMinHeightMark < differenceLevelsHeightMark)
+                                                            {
+                                                                levelIdRebar = levelsList[i - 1].Id;
+                                                                break;
+                                                            }
+
+                                                            else
+                                                            {
+                                                                levelIdRebar = levelsList[i].Id;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    else if (hostAsStairs != null)
+                                    {
+                                        levelIdRebar = hostAsStairs.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM).AsElementId();
+                                    }
+
+                                    else if (hostAsLevel != null)
+                                    {
+                                        levelIdRebar = hostAsLevel.Id;
+                                    }
+                                }
+
+                                if (levelFamilyInstanceParam != null)
+                                {
+                                    levelFamilyInstanceParam.Set(GetLevelNumber(element, levelIdRebar, levelFamilyInstanceParam));
+                                    _countElements++;
+                                }
                             }
                         }
                     }
@@ -751,24 +927,35 @@ namespace CDS.Revit.Coordination.Services.Revit
                             levelIdInstance = asInstance.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId();
                         }
 
-                        if (levelIdInstance == new ElementId(-1) || levelIdInstance == new ElementId(0))
+                        if (levelIdInstance == new ElementId(-1) || levelIdInstance == new ElementId(0) || levelIdInstance == null)
                         {
                             var host = asInstance.Host;
                             var superComponent = asInstance.SuperComponent;
-                            if(host != null)
+
+                            if(host == null)
                             {
                                 if(superComponent != null)
                                 {
                                     var superComponentAsInstance = superComponent as FamilyInstance;
 
-                                    if(superComponentAsInstance != null) host = superComponentAsInstance.Host;
+                                    if (superComponentAsInstance != null)
+                                    {
+                                        host = superComponentAsInstance.Host;
+                                    }
                                 }
+                            }
+
+                            if(host != null)
+                            {
                                 var asHostWall = host as Wall;
+                                var asHostWallSweep = host as WallSweep;
                                 var asHostFloor = host as Floor;
                                 var asLevel = host as Level;
                                 var asPipe = host as Pipe;
 
                                 if (asHostWall != null) levelIdInstance = asHostWall.LevelId;
+
+                                if (asHostWallSweep != null) levelIdInstance = asHostWallSweep.LevelId;
 
                                 if (asHostFloor != null) levelIdInstance = asHostFloor.LevelId;
 
@@ -797,6 +984,24 @@ namespace CDS.Revit.Coordination.Services.Revit
          */
         public void SetClassifierParameterValueToRebar(ICollection<Element> rebarElements)
         {
+            var allPartsInDocument = new FilteredElementCollector(_doc).OfClass(typeof(Part)).WhereElementIsNotElementType().ToElements();
+
+            Dictionary<ElementId, ElementId> partsClassifierDictionary = new Dictionary<ElementId, ElementId>();
+
+            foreach(Element element in allPartsInDocument)
+            {
+                Part part = element as Part;
+                if(part != null)
+                {
+                    ElementId elementIdPart = part.Id;
+                    ElementId elementIdHost = part.GetSourceElementIds().ToList()[0].HostElementId;
+                    if (!partsClassifierDictionary.Keys.Contains(elementIdHost))
+                    {
+                        partsClassifierDictionary[elementIdHost] = elementIdPart;
+                    }
+                }
+            }
+
             foreach (Element elem in rebarElements)
             {
                 Rebar asRebar = elem as Rebar;
@@ -817,20 +1022,22 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                         if (hostAsWall != null)
                         {
-                            var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsString();
-                            var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            ElementId idFromWall = hostAsWall.Id;
 
-                            if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                            if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsString();
+                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+
+                            parameterClassifierRebarForSet.Set(classifier);
                         }
 
                         if (hostAsFloor != null)
                         {
-                            var classifierAsString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsString();
-                            var classifierAsValueString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            ElementId idFromFloor = hostAsFloor.Id;
 
-                            if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                            if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsString();
+                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+
+                            parameterClassifierRebarForSet.Set(classifier);
                         }
 
                         if (hostAsInstance != null)
@@ -838,8 +1045,20 @@ namespace CDS.Revit.Coordination.Services.Revit
                             var classifierAsString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
                             var classifierAsValueString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
 
-                            if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                            if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                            string classifier = "";
+
+                            if (classifierAsString != null && classifierAsString != "") classifier = classifierAsString;
+                            if (classifierAsValueString != null && classifierAsValueString != "") classifier = classifierAsString;
+
+                            if (classifier == null || classifier == "")
+                            {
+                                ElementId idFromInstance = hostAsInstance.Id;
+
+                                classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromInstance])).LookupParameter("ЦДС_Классификатор")?.AsString();
+                                if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromInstance])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            }
+
+                            parameterClassifierRebarForSet.Set(classifier);
                         }
                     }
                 }
@@ -857,20 +1076,22 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                         if (hostAsWall != null)
                         {
-                            var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsString();
-                            var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            ElementId idFromWall = hostAsWall.Id;
 
-                            if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                            if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsString();
+                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+
+                            parameterClassifierRebarForSet.Set(classifier);
                         }
 
                         if (hostAsFloor != null)
                         {
-                            var classifierAsString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsString();
-                            var classifierAsValueString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            ElementId idFromFloor = hostAsFloor.Id;
 
-                            if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                            if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsString();
+                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+
+                            parameterClassifierRebarForSet.Set(classifier);
                         }
 
                         if (hostAsInstance != null)
@@ -878,8 +1099,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                             var classifierAsString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
                             var classifierAsValueString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
 
-                            if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                            if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                            if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
+                            if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
                         }
                     }
                 }
@@ -913,20 +1134,22 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                                 if (hostAsFloor != null)
                                 {
-                                    var classifierAsString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                    var classifierAsValueString = hostAsFloor.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                                    ElementId idFromFloor = hostAsFloor.Id;
 
-                                    if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                    if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                                    string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsString();
+                                    if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+
+                                    parameterClassifierRebarForSet.Set(classifier);
                                 }
 
                                 else if (hostAsWall != null)
                                 {
-                                    var classifierAsString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                    var classifierAsValueString = hostAsWall.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                                    ElementId idFromWall = hostAsWall.Id;
 
-                                    if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                    if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                                    string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsString();
+                                    if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+
+                                    parameterClassifierRebarForSet.Set(classifier);
                                 }
 
                                 else if (hostAsInstance != null)
@@ -934,8 +1157,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                                     var classifierAsString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
                                     var classifierAsValueString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
 
-                                    if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                    if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                                    if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
+                                    if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
                                 }
 
                                 else if (hostAsStairs != null)
@@ -943,8 +1166,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                                     var classifierAsString = hostAsStairs.LookupParameter("ЦДС_Классификатор")?.AsString();
                                     var classifierAsValueString = hostAsStairs.LookupParameter("ЦДС_Классификатор")?.AsValueString();
 
-                                    if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                    if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                                    if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
+                                    if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
                                 }
 
                                 else if (hostAsLevel != null)
@@ -960,8 +1183,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                                         var classifierAsString = intersectFirstPartElement.LookupParameter("ЦДС_Классификатор")?.AsString();
                                         var classifierAsValueString = intersectFirstPartElement.LookupParameter("ЦДС_Классификатор")?.AsValueString();
 
-                                        if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                        if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                                        if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
+                                        if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
                                     }
                                     else
                                     {
@@ -973,8 +1196,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                                             var classifierAsString = intersectFirstFamilyInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
                                             var classifierAsValueString = intersectFirstFamilyInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
 
-                                            if (classifierAsString != null) parameterClassifierRebarForSet.Set(classifierAsString);
-                                            if (classifierAsValueString != null) parameterClassifierRebarForSet.Set(classifierAsValueString);
+                                            if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
+                                            if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
                                         }
                                     }
                                 }

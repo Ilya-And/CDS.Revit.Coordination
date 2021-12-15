@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace CDS.Revit.Coordination.Services.Revit
 {
@@ -41,15 +42,14 @@ namespace CDS.Revit.Coordination.Services.Revit
 
             foreach(ViewSchedule viewSchedule in viewSchedulesList)
             {
-                string viewName = MakeValidFileName(viewSchedule.Name);
+                string viewName = viewSchedule.Name;
                 ViewScheduleExportOptions exportOptions = new ViewScheduleExportOptions();
                 exportOptions.FieldDelimiter = ";";
                 exportOptions.TextQualifier = ExportTextQualifier.None;
 
-                string docName = doc.PathName.Split('.')[0];
-                int index = docName.LastIndexOf('_');
-                docName = docName.Substring(0, index);
+                string docName = doc.Title.ToString();
 
+                docName = docName.Split('.')[0];
 
                 if (!viewSchedule.Name.Contains("<"))
                 {
