@@ -160,12 +160,6 @@
                                       Margin="5"
                                       Content="Выгрузить в Axapta."/>
 
-                    <CheckBox x:Name="TestExportCheckBox"
-                                      Margin="5"
-                                      IsEnabled="{Binding IsExportToAxapta}"
-                                      IsChecked="{Binding IsTestExport}"
-                                      Content="Тестовая выгрузка(Axapta)."/>
-
                 </StackPanel>
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>

@@ -8,8 +8,8 @@ namespace CDS.Revit.Coordination.Services.Axapta
 {
     public class AxaptaLoginPassword
     {
-        public static string TokenMaterialLogin => "webtest";
-        public static string TokenMaterialPassword => "QyHWOCaRI4B1niwMe2K2rg==";
+        public static string TokenMaterialLogin => "Nevis";
+        public static string TokenMaterialPassword => "oCW80fNoWxcoYnYf0o7fDA==";
         public static string TokenWorkLogin => "nevis";
         public static string TokenWorkPassword => "HPJoP/Y/33NPdTeITGd0WQ==";
     }
