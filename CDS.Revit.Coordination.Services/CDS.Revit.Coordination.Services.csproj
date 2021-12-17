@@ -83,6 +83,7 @@
     <Compile Include="Excel\Models\ColumnValues.cs" />
     <Compile Include="Excel\Models\RowValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Revit\Models\RevitParametersBuilder.cs" />
     <Compile Include="Revit\RevitFileService.cs" />
     <Compile Include="Revit\RevitModelElementService.cs" />
     <Compile Include="Revit\RevitModelScheduleService.cs" />

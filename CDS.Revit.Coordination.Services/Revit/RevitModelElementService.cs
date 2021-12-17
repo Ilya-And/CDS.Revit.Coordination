@@ -3,6 +3,7 @@ using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
+using CDS.Revit.Coordination.Services.Revit.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,26 @@ namespace CDS.Revit.Coordination.Services.Revit
     {
         private Document _doc;
         private int _countElements = 0;
-        public string SectionParameter = "ADSK_Номер секции";
-        public string LevelParameter = "ADSK_Этаж";
-        public string ClassifierParameter = "ЦДС_Классификатор";
-        public string ClassMaterialParameter = "ЦДС_Классификатор_Материалов";
+        public string SectionParameter = RevitParametersBuilder.SectionNumber.Name;
+        public string LevelParameter = RevitParametersBuilder.FloorNumber.Name;
+        public string ClassifierParameter = RevitParametersBuilder.Classifier.Name;
+
+        const string EMBEDDED_PARTS = "детали закладных";
+
+        private const string BASEMENT = "Подвал";
+        private const string BASEMENT_LOWER = "подвал";
+
+        private const string ROOF = "Кровля";
+        private const string ROOF_LOWER = "кровля";
+
+        private const string PARKING = "Паркинг";
+        private const string PARKING_LOWER = "паркинг";
+
+        private const string TECH_FLOOR = "Тех.этаж";
+        private const string TECH_FLOOR_LOWER = "тех.этаж";
+
+        private const string FLOOR_LOWER = "этаж";
+
         public RevitModelElementService(Document doc)
         {
             _doc = doc;
@@ -37,7 +54,7 @@ namespace CDS.Revit.Coordination.Services.Revit
 
             // Получаем порядковый номер или наименование этажа
 
-            if (levelNumberList.Length == 2 && levelNumberList[0].ToLower() == "этаж")
+            if (levelNumberList.Length == 2 && levelNumberList[0].ToLower() == FLOOR_LOWER)
             {
                 if (levelNumberList[1].StartsWith("0"))
                 {
@@ -56,17 +73,17 @@ namespace CDS.Revit.Coordination.Services.Revit
             {
                 switch (levelName.ToLower())
                 {
-                    case "подвал":
-                        levelNumber = "Подвал";
+                    case BASEMENT_LOWER:
+                        levelNumber = BASEMENT;
                         break;
-                    case "кровля":
-                        levelNumber = "Кровля";
+                    case ROOF_LOWER:
+                        levelNumber = ROOF;
                         break;
-                    case "паркинг":
-                        levelNumber = "Паркинг";
+                    case PARKING_LOWER:
+                        levelNumber = PARKING;
                         break;
-                    case "тех.этаж":
-                        levelNumber = "Тех.этаж";
+                    case TECH_FLOOR_LOWER:
+                        levelNumber = TECH_FLOOR;
                         break;
                 }
             }
@@ -298,8 +315,8 @@ namespace CDS.Revit.Coordination.Services.Revit
             {
                 case BuiltInCategory.OST_Walls:
                     var asWall = element as Wall;
-                    asWall.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                    var levelWallParam = asWall.LookupParameter("ADSK_Этаж");
+                    asWall.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                    var levelWallParam = asWall.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                     var levelIdWall = asWall.LevelId;
                     if (levelWallParam != null && levelWallParam.AsValueString() != "Cекция" || levelWallParam.AsValueString() != "секция")
                     {
@@ -310,12 +327,12 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                 case BuiltInCategory.OST_Cornices:
                     var asWallSweep = element as WallSweep;
-                    asWallSweep.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                    var levelWallSweepParam = asWallSweep.LookupParameter("ADSK_Этаж");
+                    asWallSweep.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                    var levelWallSweepParam = asWallSweep.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                     var levelIdWallSweep = asWallSweep.LevelId;
                     if (levelWallSweepParam != null)
                     {
-                        asWallSweep.LookupParameter("ADSK_Этаж").Set(GetLevelNumber(element, levelIdWallSweep, levelWallSweepParam));
+                        asWallSweep.LookupParameter(RevitParametersBuilder.FloorNumber.Name).Set(GetLevelNumber(element, levelIdWallSweep, levelWallSweepParam));
                         _countElements++;
                     }
                     break;
@@ -325,8 +342,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                     if(asFloor != null)
                     {
-                        asFloor.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelFloorParam = asFloor.LookupParameter("ADSK_Этаж");
+                        asFloor.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelFloorParam = asFloor.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                         var levelIdFloor = asFloor.LevelId;
                         if (levelFloorParam != null)
                         {
@@ -341,8 +358,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                     var asFamilyInstanceFoundation = element as FamilyInstance;
                     if (asFloorFoundation != null)
                     {
-                        asFloorFoundation.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelFloorFoundationParam = asFloorFoundation.LookupParameter("ADSK_Этаж");
+                        asFloorFoundation.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelFloorFoundationParam = asFloorFoundation.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                         var levelIdFloorFoundation = asFloorFoundation.LevelId;
                         if (levelFloorFoundationParam != null)
                         {
@@ -352,8 +369,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                     }
                     else if (asFamilyInstanceFoundation != null)
                     {
-                        asFamilyInstanceFoundation.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelInstanceFoundationParam = asFamilyInstanceFoundation.LookupParameter("ADSK_Этаж");
+                        asFamilyInstanceFoundation.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelInstanceFoundationParam = asFamilyInstanceFoundation.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                         var levelIdInstanceFoundation = asFamilyInstanceFoundation.LevelId;
                         if (levelInstanceFoundationParam != null)
                         {
@@ -368,8 +385,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                     var asExtrusionRoof = element as ExtrusionRoof;
                     if (asRoof != null)
                     {
-                        asRoof.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelRoofParam = asRoof.LookupParameter("ADSK_Этаж");
+                        asRoof.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelRoofParam = asRoof.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                         var levelIdRoof = asRoof.LevelId;
                         if (levelRoofParam != null)
                         {
@@ -379,12 +396,12 @@ namespace CDS.Revit.Coordination.Services.Revit
                     }
                     if (asExtrusionRoof != null)
                     {
-                        asExtrusionRoof.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelExtrusionRoofParam = asExtrusionRoof.LookupParameter("ADSK_Этаж");
+                        asExtrusionRoof.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelExtrusionRoofParam = asExtrusionRoof.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                         var levelIdRoof = asExtrusionRoof.get_Parameter(BuiltInParameter.ROOF_CONSTRAINT_LEVEL_PARAM).AsElementId();
                         if (levelExtrusionRoofParam != null)
                         {
-                            asExtrusionRoof.LookupParameter("ADSK_Этаж").Set(GetLevelNumber(element, levelIdRoof, levelExtrusionRoofParam));
+                            asExtrusionRoof.LookupParameter(RevitParametersBuilder.FloorNumber.Name).Set(GetLevelNumber(element, levelIdRoof, levelExtrusionRoofParam));
                             _countElements++;
                         }
                     }
@@ -392,8 +409,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                 case BuiltInCategory.OST_CurtainWallMullions:
                     var asMullion = element as Mullion;
-                    asMullion.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                    var levelMullionParam = asMullion.LookupParameter("ADSK_Этаж");
+                    asMullion.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                    var levelMullionParam = asMullion.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                     var hostMullion = asMullion.Host as Wall;
                     var levelIdMullion = hostMullion.LevelId;
                     if (levelMullionParam != null)
@@ -410,8 +427,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                     var levelIdPanel = new ElementId(0);
                     if (asPanel != null)
                     {
-                        asPanel.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelPanelParam = asPanel.LookupParameter("ADSK_Этаж");
+                        asPanel.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelPanelParam = asPanel.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                         var hostPanel = asPanel.Host as Wall;
                         levelIdPanel = hostPanel.LevelId;
                         if (levelPanelParam != null)
@@ -422,8 +439,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                     }
                     else if (asPanelWall != null)
                     {
-                        asPanelWall.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelPanelWallParam = asPanelWall.LookupParameter("ADSK_Этаж");
+                        asPanelWall.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelPanelWallParam = asPanelWall.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                         levelIdPanel = asPanelWall.LevelId;
                         if (levelPanelWallParam != null)
                         {
@@ -433,8 +450,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                     }
                     else
                     {
-                        asPanelInstance.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelPanelInstanceParam = asPanelInstance.LookupParameter("ADSK_Этаж");
+                        asPanelInstance.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelPanelInstanceParam = asPanelInstance.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                         levelIdPanel = asPanelWall.LevelId;
                         if (levelPanelInstanceParam != null)
                         {
@@ -446,8 +463,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                 case BuiltInCategory.OST_Ceilings:
                     var asCeiling = element as Ceiling;
-                    asCeiling.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                    var levelCeilingParam = asCeiling.LookupParameter("ADSK_Этаж");
+                    asCeiling.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                    var levelCeilingParam = asCeiling.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                     var levelIdCeiling = asCeiling.LevelId;
                     if (levelCeilingParam != null)
                     {
@@ -458,8 +475,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                 case BuiltInCategory.OST_StairsRailing:
                     var asRailing = element as Railing;
-                    asRailing.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                    var levelRailingParam = asRailing.LookupParameter("ADSK_Этаж");
+                    asRailing.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                    var levelRailingParam = asRailing.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                     ElementId levelIdRailing = asRailing.LevelId;
 
                     if (levelIdRailing == new ElementId(-1))
@@ -484,8 +501,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                         if(asStairs != null)
                         {
-                            asStairs.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                            var levelStairsParam = asStairs.LookupParameter("ADSK_Этаж");
+                            asStairs.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                            var levelStairsParam = asStairs.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                             var levelIdStairs = asStairs.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM).AsElementId();
                             if (levelStairsParam != null)
                             {
@@ -496,8 +513,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                         if(asFamInstance != null)
                         {
-                            asFamInstance.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                            var levelStairsParam = asFamInstance.LookupParameter("ADSK_Этаж");
+                            asFamInstance.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                            var levelStairsParam = asFamInstance.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                             var levelIdStairs = asFamInstance.LevelId;
 
                             if(levelIdStairs == null)
@@ -565,8 +582,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                     var levelIdRebar = new ElementId(0);
                     if (asRebar != null)
                     {
-                        asRebar.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelRebarParam = asRebar.LookupParameter("ADSK_Этаж");
+                        asRebar.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelRebarParam = asRebar.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
 
                         string levelRebarParamValue = "";
 
@@ -640,8 +657,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                     }
                     else if (asRebarInSystem != null)
                     {
-                        asRebarInSystem.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelRebarInSystemParam = asRebarInSystem.LookupParameter("ADSK_Этаж");
+                        asRebarInSystem.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelRebarInSystemParam = asRebarInSystem.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
 
                         string levelRebarParamValue = "";
 
@@ -716,8 +733,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                     else if (asFamilyInstance != null)
                     {
-                        asFamilyInstance.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelFamilyInstanceParam = asFamilyInstance.LookupParameter("ADSK_Этаж");
+                        asFamilyInstance.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelFamilyInstanceParam = asFamilyInstance.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
 
                         string levelRebarParamValue = "";
 
@@ -856,9 +873,9 @@ namespace CDS.Revit.Coordination.Services.Revit
                 case BuiltInCategory.OST_PipeCurves:
                     var asPipes = element as Pipe;
 
-                    asPipes.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
+                    asPipes.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
 
-                    var levelPipesParam = asPipes.LookupParameter("ADSK_Этаж");
+                    var levelPipesParam = asPipes.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
 
                     var levelIdPipes = asPipes.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId();
 
@@ -872,9 +889,9 @@ namespace CDS.Revit.Coordination.Services.Revit
                 case BuiltInCategory.OST_PipeInsulations:
                     var asPipeInsulation = element as PipeInsulation;
 
-                    asPipeInsulation.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
+                    asPipeInsulation.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
 
-                    var levelPipeInsulationParam = asPipeInsulation.LookupParameter("ADSK_Этаж");
+                    var levelPipeInsulationParam = asPipeInsulation.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
 
                     var levelIdPipeInsulation = _doc.GetElement(asPipeInsulation.HostElementId).get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId();
 
@@ -887,8 +904,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                 case BuiltInCategory.OST_DuctCurves:
                     var asDuct = element as Duct;
-                    asDuct.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                    var levelDuctParam = asDuct.LookupParameter("ADSK_Этаж");
+                    asDuct.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                    var levelDuctParam = asDuct.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                     var levelIdDuct = asDuct.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId();
                     if (levelDuctParam != null && levelDuctParam.AsString() != "Секция" || levelDuctParam.AsString() != "Секция" || levelDuctParam.AsString() == "" || levelDuctParam.AsString() == "")
                     {
@@ -899,8 +916,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                 case BuiltInCategory.OST_DuctInsulations:
                     var asDuctInsulation = element as DuctInsulation;
-                    asDuctInsulation.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                    var levelDuctInsulationParam = asDuctInsulation.LookupParameter("ADSK_Этаж");
+                    asDuctInsulation.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                    var levelDuctInsulationParam = asDuctInsulation.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                     var levelIdDuctInsulation = _doc.GetElement(asDuctInsulation.HostElementId).get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId();
                     if (levelDuctInsulationParam != null && levelDuctInsulationParam.AsString() != "Секция" || levelDuctInsulationParam.AsString() != "секция")
                     {
@@ -914,8 +931,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                     try
                     {
                         var asInstance = element as FamilyInstance;
-                        asInstance.LookupParameter("ADSK_Номер секции").Set(sectionNumber);
-                        var levelInstanceParam = asInstance.LookupParameter("ADSK_Этаж");
+                        asInstance.LookupParameter(RevitParametersBuilder.SectionNumber.Name).Set(sectionNumber);
+                        var levelInstanceParam = asInstance.LookupParameter(RevitParametersBuilder.FloorNumber.Name);
                         var levelIdInstance = new ElementId(0);
 
                         try
@@ -1010,7 +1027,7 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                 if (asRebar != null)
                 {
-                    var parameterClassifierRebarForSet = asRebar.LookupParameter("ЦДС_Классификатор");
+                    var parameterClassifierRebarForSet = asRebar.LookupParameter(RevitParametersBuilder.Classifier.Name);
 
                     if (parameterClassifierRebarForSet != null)
                     {
@@ -1024,8 +1041,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                         {
                             ElementId idFromWall = hostAsWall.Id;
 
-                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsString();
-                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                             parameterClassifierRebarForSet.Set(classifier);
                         }
@@ -1034,16 +1051,16 @@ namespace CDS.Revit.Coordination.Services.Revit
                         {
                             ElementId idFromFloor = hostAsFloor.Id;
 
-                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsString();
-                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                             parameterClassifierRebarForSet.Set(classifier);
                         }
 
                         if (hostAsInstance != null)
                         {
-                            var classifierAsString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
-                            var classifierAsValueString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            var classifierAsString = hostAsInstance.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                            var classifierAsValueString = hostAsInstance.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                             string classifier = "";
 
@@ -1054,8 +1071,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                             {
                                 ElementId idFromInstance = hostAsInstance.Id;
 
-                                classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromInstance])).LookupParameter("ЦДС_Классификатор")?.AsString();
-                                if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromInstance])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                                classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromInstance])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                                if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromInstance])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
                             }
 
                             parameterClassifierRebarForSet.Set(classifier);
@@ -1064,7 +1081,7 @@ namespace CDS.Revit.Coordination.Services.Revit
                 }
                 else if (asRebarInSystem != null)
                 {
-                    var parameterClassifierRebarForSet = asRebarInSystem.LookupParameter("ЦДС_Классификатор");
+                    var parameterClassifierRebarForSet = asRebarInSystem.LookupParameter(RevitParametersBuilder.Classifier.Name);
 
                     if (parameterClassifierRebarForSet != null)
                     {
@@ -1078,8 +1095,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                         {
                             ElementId idFromWall = hostAsWall.Id;
 
-                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsString();
-                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                             parameterClassifierRebarForSet.Set(classifier);
                         }
@@ -1088,16 +1105,16 @@ namespace CDS.Revit.Coordination.Services.Revit
                         {
                             ElementId idFromFloor = hostAsFloor.Id;
 
-                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsString();
-                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                            if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                             parameterClassifierRebarForSet.Set(classifier);
                         }
 
                         if (hostAsInstance != null)
                         {
-                            var classifierAsString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
-                            var classifierAsValueString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                            var classifierAsString = hostAsInstance.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                            var classifierAsValueString = hostAsInstance.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                             if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
                             if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
@@ -1110,9 +1127,10 @@ namespace CDS.Revit.Coordination.Services.Revit
                     var asSymbol = asFamInstance.Symbol;
                     string typeCommentParameterValue = asSymbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).AsString();
 
-                    if (typeCommentParameterValue != "детали закладных")
+                    
+                    if (typeCommentParameterValue != EMBEDDED_PARTS)
                     {
-                        var parameterClassifierRebarForSet = asFamInstance.LookupParameter("ЦДС_Классификатор");
+                        var parameterClassifierRebarForSet = asFamInstance.LookupParameter(RevitParametersBuilder.Classifier.Name);
 
                         if (parameterClassifierRebarForSet != null)
                         {
@@ -1136,8 +1154,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                                 {
                                     ElementId idFromFloor = hostAsFloor.Id;
 
-                                    string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsString();
-                                    if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                                    string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                                    if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromFloor])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                                     parameterClassifierRebarForSet.Set(classifier);
                                 }
@@ -1146,16 +1164,16 @@ namespace CDS.Revit.Coordination.Services.Revit
                                 {
                                     ElementId idFromWall = hostAsWall.Id;
 
-                                    string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsString();
-                                    if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                                    string classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                                    if (classifier == null || classifier == "") classifier = ((Part)_doc.GetElement(partsClassifierDictionary[idFromWall])).LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                                     parameterClassifierRebarForSet.Set(classifier);
                                 }
 
                                 else if (hostAsInstance != null)
                                 {
-                                    var classifierAsString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                    var classifierAsValueString = hostAsInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                                    var classifierAsString = hostAsInstance.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                                    var classifierAsValueString = hostAsInstance.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                                     if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
                                     if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
@@ -1163,8 +1181,8 @@ namespace CDS.Revit.Coordination.Services.Revit
 
                                 else if (hostAsStairs != null)
                                 {
-                                    var classifierAsString = hostAsStairs.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                    var classifierAsValueString = hostAsStairs.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                                    var classifierAsString = hostAsStairs.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                                    var classifierAsValueString = hostAsStairs.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                                     if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
                                     if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
@@ -1180,8 +1198,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                                                                      select e).FirstOrDefault() as Part;
                                     if (intersectFirstPartElement != null)
                                     {
-                                        var classifierAsString = intersectFirstPartElement.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                        var classifierAsValueString = intersectFirstPartElement.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                                        var classifierAsString = intersectFirstPartElement.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                                        var classifierAsValueString = intersectFirstPartElement.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                                         if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
                                         if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
@@ -1193,8 +1211,8 @@ namespace CDS.Revit.Coordination.Services.Revit
                                                                                        select e).FirstOrDefault() as FamilyInstance;
                                         if(intersectFirstFamilyInstance != null)
                                         {
-                                            var classifierAsString = intersectFirstFamilyInstance.LookupParameter("ЦДС_Классификатор")?.AsString();
-                                            var classifierAsValueString = intersectFirstFamilyInstance.LookupParameter("ЦДС_Классификатор")?.AsValueString();
+                                            var classifierAsString = intersectFirstFamilyInstance.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsString();
+                                            var classifierAsValueString = intersectFirstFamilyInstance.LookupParameter(RevitParametersBuilder.Classifier.Name)?.AsValueString();
 
                                             if (classifierAsString != null && classifierAsString != "") parameterClassifierRebarForSet.Set(classifierAsString);
                                             if (classifierAsValueString != null && classifierAsValueString != "") parameterClassifierRebarForSet.Set(classifierAsValueString);
